@@ -15,6 +15,9 @@ typedef struct player {
 // need a valid (pre-initiated) sprite pointer
 player_t* player_init( sprite_t* sprite, float x, float y, float speed );
 
+void player_set_pos( player_t* player, float x, float y );
+void player_get_pos( player_t* player, float* x, float* y );
+
 void player_update( player_t* player, const Uint8* keystate );
 
 void player_render( player_t* player, camera_t* camera, SDL_Renderer* renderer );

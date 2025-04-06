@@ -80,6 +80,7 @@ game_t* game_init( void ) {
 
     // Set the initial state of the game
     game->running = true;
+    game->frame_count = 0;
 
     return game;
 }
@@ -108,10 +109,46 @@ void game_start( game_t* game ) {
     SDL_RenderClear( game->renderer );
 }
 
+void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
+    switch ( key->keysym.sym ) {
+        case SDLK_SPACE:
+            // Center camera on player
+            camera_set_pos_center( game->camera, game->player->x, game->player->y );
+            break;
+        case SDLK_EXCLAIM:
+            // Show debug info
+            float camera_x, camera_y;
+            float player_x, player_y;
+            int mouse_screen_x, mouse_screen_y;
+            float mouse_world_x, mouse_world_y;
+            camera_get_pos_center( game->camera, &camera_x, &camera_y );
+            player_get_pos( game->player, &player_x, &player_y );
+            SDL_GetMouseState( &mouse_screen_x, &mouse_screen_y );
+            camera_screentoworld_pos( game->camera, &mouse_world_x, &mouse_world_y, mouse_screen_x, mouse_screen_y );
+
+            printf("frame count       : %d\n", game->frame_count);
+            printf("player world pos  : %f %f\n", player_x, player_y);
+            printf("camera center pos : %f %f\n", camera_x, camera_y);
+            printf("mouse screen pos : %d %d\n", mouse_screen_x, mouse_screen_y);
+            printf("mouse world pos  : %f %f\n", mouse_world_x, mouse_world_y);
+
+            puts("");
+            break;
+        default:
+            break;
+    }
+}
 void game_handle_events( game_t* game ) {
     while ( SDL_PollEvent( &game->event ) ) {
-        if ( game->event.type == SDL_QUIT ) {
-            game->running = false;
+        switch ( game->event.type ) {
+            case SDL_QUIT:
+                game->running = false;
+                break;
+            case SDL_KEYDOWN:
+                game_handle_keydown( game, &game->event.key );
+                break;
+            default:
+                break;
         }
     }
 }
@@ -137,35 +174,16 @@ void game_render( game_t* game ) {
 }
 
 void game_run( game_t* game ) {
-    int frame_count = 0;
-    float player_x, player_y, camera_x, camera_y;
-    int player_screen_x, player_screen_y;
-
     game_start( game );
 
     while ( game->running ) {
-        frame_count++;
-        
+        game->frame_count++;
+
         game_handle_events( game );
 
         game_update( game );
 
         game_render( game );
-
-        // debug
-        if ( 0 == frame_count%60 ) { 
-            player_x = game->player->x; player_y = game->player->y;
-            camera_get_pos( game->camera, &camera_x, &camera_y );
-            camera_worldtoscreen_pos( game->camera, player_x, player_y, &player_screen_x, &player_screen_y );
-
-            printf("frame count : %d\n", frame_count);
-            // printf("player world pos : %4f %4f\n", player_x, player_y);
-            // printf("camera world pos : %4f %4f\n", camera_x, camera_y);
-            // printf("player screen pos : %4d %4d\n", player_screen_x, player_screen_y);
-
-            puts("");
-        }
-
 
         SDL_Delay( FRAME_TIME );
     }

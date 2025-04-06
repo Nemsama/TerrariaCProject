@@ -11,9 +11,8 @@ camera_t* camera_init( float x, float y, float scale ) {
     camera->y = y;
     camera->scale = scale;
 
-    camera->width  = 50.0f;
-    camera->height = 25.0f;
-    camera->pixels_per_block = 32.0f;
+    camera->width  = WINDOW_WIDTH  / PIXELS_PER_BLOCK;
+    camera->height = WINDOW_HEIGHT / PIXELS_PER_BLOCK;
 
     return camera;
 }
@@ -36,15 +35,15 @@ bool camera_is_seeing( camera_t* camera, SDL_Rect rect ) {
 }
 
 void camera_worldtoscreen_pos( camera_t* camera, float  world_x, float  world_y, int *screen_x, int *screen_y ) {
-    if ( screen_x ) *screen_x = (int)((world_x - camera->x) * camera->pixels_per_block);
-    int upward_y = (int)((world_y - camera->y) * camera->pixels_per_block);
-    if ( screen_y ) *screen_y = (int)( camera->height * camera->pixels_per_block ) - upward_y;
+    if ( screen_x ) *screen_x = (int)((world_x - camera->x) * PIXELS_PER_BLOCK);
+    int upward_y = (int)((world_y - camera->y) * PIXELS_PER_BLOCK);
+    if ( screen_y ) *screen_y = (int)( camera->height * PIXELS_PER_BLOCK ) - upward_y;
 }
 
 void camera_screentoworld_pos( camera_t* camera, float *world_x, float *world_y, int  screen_x, int  screen_y ) {
-    if ( world_x ) *world_x = (float)screen_x / camera->pixels_per_block + camera->x;
-    int upward_y = (int)( camera->height * camera->pixels_per_block ) - screen_y;
-    if ( world_y ) *world_y = (float)upward_y / camera->pixels_per_block + camera->y;
+    if ( world_x ) *world_x = (float)screen_x / PIXELS_PER_BLOCK + camera->x;
+    int upward_y = (int)( camera->height * PIXELS_PER_BLOCK ) - screen_y;
+    if ( world_y ) *world_y = (float)upward_y / PIXELS_PER_BLOCK + camera->y;
 }
 
 void camera_get_pos( camera_t* camera, float *x, float *y ) {
@@ -67,14 +66,15 @@ void camera_set_pos_center( camera_t* camera, float x, float y ) {
     camera->x = x - camera->width /2;
     camera->y = y - camera->height/2;
 }
-/* void camera_set_scale( camera_t* camera, float scale ) {
+/* 
+void camera_set_scale( camera_t* camera, float scale ) {
     float center_x, center_y;
     camera_get_pos_center( camera, &center_x, &center_y );
 
     camera->scale = scale;
     camera->width  = 60.0f * scale;
     camera->height = 30.0f * scale;
-    camera->pixels_per_block = 32.0f / scale;
+    PIXELS_PER_BLOCK = 32.0f / scale;
 
     // recenter the camera
     camera_set_pos_center( camera, center_x, center_y );

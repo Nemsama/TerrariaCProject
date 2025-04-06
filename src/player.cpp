@@ -20,6 +20,19 @@ player_t* player_init( sprite_t* sprite, float x, float y, float speed ) {
     return player;
 }
 
+void player_set_pos( player_t* player, float x, float y ) {
+    if ( !player ) return;
+
+    player->x = x;
+    player->y = y;
+}
+void player_get_pos( player_t* player, float* x, float* y ) {
+    if ( !player ) return;
+
+    if ( x ) *x = player->x;
+    if ( y ) *y = player->y;
+}
+
 void player_update(player_t* player, const Uint8* keystate) {
     // static float movement_buffer = 0.0f;
 
