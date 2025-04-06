@@ -16,6 +16,8 @@ void sprite_free( sprite_t* sprite );
 
 void sprite_set_position( sprite_t* sprite, int x, int y );
 
+void sprite_set_scale( sprite_t* sprite, int width, int height );
+
 void sprite_render( sprite_t* sprite, SDL_Renderer* renderer );
 
 #endif

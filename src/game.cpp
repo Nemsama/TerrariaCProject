@@ -42,7 +42,8 @@ game_t* game_init( void ) {
     }
 
     // Load background sprite
-    game->background = sprite_init( "assets/background/Blue_sky.png", game->renderer, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT );
+    game->background = sprite_init( "assets/background/Blue_sky.png", game->renderer, 0, 0, 2048, 1024 );
+    sprite_set_scale( game->background, WINDOW_WIDTH, WINDOW_HEIGHT );
     sprite_set_position( game->background, 0, 0 );
 
     // Set the initial state of the game

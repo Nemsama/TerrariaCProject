@@ -6,8 +6,8 @@
 
 #include <sprite.h>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1600
+#define WINDOW_HEIGHT 800
 #define WINDOW_TITLE "Nem's Terraria"
 #define FPS 60
 #define FRAME_TIME (1000 / FPS)
