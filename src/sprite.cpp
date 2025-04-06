@@ -73,3 +73,36 @@ void sprite_render( sprite_t* sprite, SDL_Renderer* renderer ) {
     // Render the sprite to the screen
     SDL_RenderCopy( renderer, sprite->texture, &sprite->src_rect, &sprite->dest_rect );
 }
+
+void sprite_set_texture( sprite_t* sprite, SDL_Texture* texture ) {
+    if ( sprite == NULL ) return;
+
+    // Destroy the old texture
+    SDL_DestroyTexture( sprite->texture );
+
+    // Set the new texture
+    sprite->texture = texture;
+}
+
+void sprite_set_texture_path( sprite_t* sprite, const char* texture_path, SDL_Renderer* renderer ) {
+    if ( sprite == NULL ) return;
+
+    // Load the new texture from the file
+    SDL_Surface* surface = IMG_Load( texture_path );
+    if ( surface == NULL ) {
+        perror("Failed to load texture for sprite");
+        return;
+    }
+
+    // Create the new texture from the surface
+    SDL_Texture* new_texture = SDL_CreateTextureFromSurface( renderer, surface );
+    SDL_FreeSurface( surface );
+
+    if ( new_texture == NULL ) {
+        perror("Failed to create texture from surface for sprite");
+        return;
+    }
+
+    // Set the new texture
+    sprite_set_texture( sprite, new_texture );
+}

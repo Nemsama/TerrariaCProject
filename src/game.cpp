@@ -164,9 +164,13 @@ void game_render( game_t* game ) {
     SDL_SetRenderDrawColor( game->renderer, 0, 0, 0, 255 ); // black background
     SDL_RenderClear( game->renderer );
 
-    // Render the background sprite
+    // Render the background
     sprite_render( game->background, game->renderer );
 
+    // Render blocks
+    world_render( game->world, game->camera, game->renderer );
+
+    // Render the player
     player_render( game->player, game->camera, game->renderer );
 
     // Present the back buffer

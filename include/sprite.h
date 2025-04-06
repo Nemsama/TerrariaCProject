@@ -21,4 +21,6 @@ void sprite_scale( sprite_t* sprite, float scale_x, float scale_y );
 
 void sprite_render( sprite_t* sprite, SDL_Renderer* renderer );
 
+void sprite_set_texture( sprite_t* sprite, SDL_Texture* texture );
+
 #endif
