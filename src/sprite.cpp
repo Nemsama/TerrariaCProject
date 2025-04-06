@@ -6,7 +6,7 @@ sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src
     sprite_t* sprite = (sprite_t*)calloc( 1, sizeof(*sprite) );
     if ( sprite == NULL ) {
         perror("Failed to allocate memory for sprite structure");
-        exit( EXIT_FAILURE );
+        return NULL;
     }
 
     // Load the texture from the file
@@ -14,7 +14,7 @@ sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src
     if ( surface == NULL ) {
         perror("Failed to load texture for sprite");
         free(sprite);
-        exit( EXIT_FAILURE );
+        return NULL;
     }
 
     // Create the texture from the surface
@@ -24,7 +24,7 @@ sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src
     if ( sprite->texture == NULL ) {
         perror("Failed to create texture from surface for sprite");
         free(sprite);
-        exit( EXIT_FAILURE );
+        return NULL;
     }
 
     // Set the source rectangle to the entire texture
@@ -42,12 +42,14 @@ sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src
     return sprite;
 }
 
-void sprite_free( sprite_t* sprite ) {
+void sprite_destroy( sprite_t* sprite ) {
+    if ( !sprite ) return;
+
     SDL_DestroyTexture( sprite->texture );
     free(sprite);
 }
 
-void sprite_set_position( sprite_t* sprite, int x, int y ) {
+void sprite_set_pos( sprite_t* sprite, int x, int y ) {
     if ( sprite == NULL ) return;
 
     sprite->dest_rect.x = x;
@@ -59,6 +61,12 @@ void sprite_set_scale( sprite_t* sprite, int width, int height ) {
 
     sprite->dest_rect.w = width;
     sprite->dest_rect.h = height;
+}
+void sprite_scale(  sprite_t* sprite, float scale_x, float scale_y ) {
+    if ( sprite == NULL ) return;
+
+    sprite->dest_rect.w *= scale_x;
+    sprite->dest_rect.h *= scale_y;
 }
 
 void sprite_render( sprite_t* sprite, SDL_Renderer* renderer ) {

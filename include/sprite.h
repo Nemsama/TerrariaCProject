@@ -12,11 +12,12 @@ typedef struct sprite {
 
 sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src_x, int src_y, int width, int height );
 
-void sprite_free( sprite_t* sprite );
+void sprite_destroy( sprite_t* sprite );
 
-void sprite_set_position( sprite_t* sprite, int x, int y );
+void sprite_set_pos( sprite_t* sprite, int x, int y );
 
 void sprite_set_scale( sprite_t* sprite, int width, int height );
+void sprite_scale( sprite_t* sprite, float scale_x, float scale_y );
 
 void sprite_render( sprite_t* sprite, SDL_Renderer* renderer );
 
