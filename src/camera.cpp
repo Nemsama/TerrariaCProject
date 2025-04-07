@@ -50,6 +50,10 @@ void camera_get_pos_center( camera_t* camera, float *x, float *y ) {
     if ( x ) *x = camera->world_rect.x + camera->world_rect.w / 2;
     if ( y ) *y = camera->world_rect.y + camera->world_rect.h / 2;
 }
+void camera_get_shape( camera_t* camera, float *w, float *h ) {
+    if ( w ) *w = camera->world_rect.w;
+    if ( h ) *h = camera->world_rect.h;
+}
 /* void camera_get_scale( camera_t* camera, float *scale ) {
     if ( scale ) *scale = camera->scale;
 } */

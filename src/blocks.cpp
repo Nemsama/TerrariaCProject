@@ -1,13 +1,18 @@
 #include <blocks.h>
 
+SDL_Texture* blocks_textures[BLOCK_TYPES_COUNT];
+
 bool init_blocks_textures( SDL_Renderer* renderer ) {
     char texture_path[256];
     const char* block_texture_names[BLOCK_TYPES_COUNT] = BLOCK_TEXTURES_NAMES;
 
     for ( int i = 0; i < BLOCK_TYPES_COUNT; i++ ) {
+        
+
         snprintf( texture_path, sizeof(texture_path), "%s%s%s", BLOCK_TEXTURES_PATH, block_texture_names[i], BLOCK_TEXTURES_EXT );
         blocks_textures[i] = IMG_LoadTexture( renderer, texture_path );
         if ( blocks_textures[i] == NULL ) {
+            printf("Failed to load texture %d\n", i);
             perror("Failed to load block texture");
             return false;
         }
@@ -67,9 +72,31 @@ void block_render( block_t* block, camera_t* camera, SDL_Renderer* renderer ) {
 
     camera_worldtoscreen_pos( camera, block->x, block->y, &block->sprite->dest_rect.x, &block->sprite->dest_rect.y );
 
+    // printf("block %d %d %d %d\n", block->x, block->y, block->sprite->dest_rect.x, block->sprite->dest_rect.y);
+
     sprite_render( block->sprite, renderer );
 }
 
 void world_render( world_t* world, camera_t* camera, SDL_Renderer* renderer ) {
-    
+    if ( world == NULL || camera == NULL || renderer == NULL ) return;
+    block_t block;
+    block.sprite = sprite_init_texture( blocks_textures[INVALID], 0, 0, 32, 32 );
+    float camera_x, camera_y;
+    float camera_w, camera_h;
+    camera_get_pos( camera, &camera_x, &camera_y );
+    camera_get_shape( camera, &camera_w, &camera_h );
+
+    for ( int x = (int)camera_x; x < camera_x + camera_w; x++ ) {
+        for ( int y = (int)camera_y; y < camera_y + camera_h; y++ ) {
+            block.type = (*world)[x][y];
+            block.x = x;
+            block.y = y;
+
+            if ( block.type == AIR ) continue;
+            
+            sprite_set_texture( block.sprite, blocks_textures[block.type] );
+            block_render( &block, camera, renderer );
+        }
+    }
+    sprite_destroy( block.sprite );
 }

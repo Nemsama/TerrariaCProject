@@ -6,6 +6,7 @@
 #include <camera.h>
 #include <sprite.h>
 #include <player.h>
+#include <blocks.h>
 
 typedef struct game {
     SDL_Window* window;
@@ -16,9 +17,12 @@ typedef struct game {
 
     bool running;
     int frame_count;
+    clock_t current_time;
+    double frame_time;
 
     // game objects
     camera_t* camera;
+    world_t* world;
     player_t* player;
 } game_t;
 

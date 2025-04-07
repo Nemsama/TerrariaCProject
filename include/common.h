@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
@@ -16,8 +17,8 @@
 
 #define WORLD_WIDTH 2048
 #define WORLD_HEIGHT 1024
-#define WORLD_SPAWN_X 0.0f
-#define WORLD_SPAWN_Y 0.0f
+#define WORLD_SPAWN_X 1024.0f
+#define WORLD_SPAWN_Y 512.0f
 #define PLAYER_BASE_SPEED 0.3f
 
 #endif

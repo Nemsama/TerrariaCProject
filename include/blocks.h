@@ -5,16 +5,15 @@
 #include <camera.h>
 #include <sprite.h>
 
-#define BLOCK_TYPES_COUNT 6
+#define BLOCK_TYPES_COUNT 5
 typedef enum {
     AIR,
     DIRT,
     GRASS,
     INVALID,
-    SAND,
     STONE
 } block_type_t;
-SDL_Texture* blocks_textures[BLOCK_TYPES_COUNT]; // textures for each block type
+extern SDL_Texture* blocks_textures[]; // textures for each block type
 #define BLOCK_TEXTURES_PATH "assets/blocks/"
 #define BLOCK_TEXTURES_EXT  ".png"
 #define BLOCK_TEXTURES_NAMES { \
@@ -22,7 +21,6 @@ SDL_Texture* blocks_textures[BLOCK_TYPES_COUNT]; // textures for each block type
     "dirt", \
     "grass", \
     "invalid", \
-    "sand", \
     "stone" \
 }
 

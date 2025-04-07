@@ -41,6 +41,35 @@ sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src
 
     return sprite;
 }
+sprite_t* sprite_init_texture( SDL_Texture* texture, int src_x, int src_y, int width, int height ) {
+    if ( texture == NULL ) {
+        perror("Texture is NULL");
+        return NULL;
+    }
+    // Allocate memory for the sprite structure
+    sprite_t* sprite = (sprite_t*)calloc( 1, sizeof(*sprite) );
+    if ( sprite == NULL ) {
+        perror("Failed to allocate memory for sprite structure");
+        return NULL;
+    }
+
+    // Set the texture
+    sprite->texture = texture;
+
+    // Set the source rectangle to the entire texture
+    sprite->src_rect.x = src_x;
+    sprite->src_rect.y = src_y;
+    sprite->src_rect.w = width;
+    sprite->src_rect.h = height;
+
+    // Set the destination rectangle to the specified position and size
+    sprite->dest_rect.x = 0;
+    sprite->dest_rect.y = 0;
+    sprite->dest_rect.w = width;
+    sprite->dest_rect.h = height;
+
+    return sprite;
+}
 
 void sprite_destroy( sprite_t* sprite ) {
     if ( !sprite ) return;

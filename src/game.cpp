@@ -76,11 +76,27 @@ game_t* game_init( void ) {
         free(game);
         return NULL;
     }
-    camera_set_pos_center( game->camera, 0.0f, 0.0f );
+    camera_set_pos_center( game->camera, WORLD_SPAWN_X, WORLD_SPAWN_Y );
+
+    // Initialize world
+    game->world = world_init();
+    if ( game->world == NULL ) {
+        perror("Failed to create world");
+        camera_destroy( game->camera );
+        player_destroy( game->player );
+        sprite_destroy( game->background );
+        SDL_DestroyRenderer( game->renderer );
+        SDL_DestroyWindow( game->window );
+        SDL_Quit();
+        free(game);
+        return NULL;
+    }
 
     // Set the initial state of the game
     game->running = true;
     game->frame_count = 0;
+    game->current_time = 0;
+    game->frame_time = 0.0;
 
     return game;
 }
@@ -90,6 +106,8 @@ void game_quit( game_t* game ) {
 
     game->running = false;
 
+    world_destroy( game->world );
+    destroy_blocks_textures();
     camera_destroy( game->camera );
 
     player_destroy( game->player );
@@ -107,18 +125,30 @@ void game_quit( game_t* game ) {
 
 void game_start( game_t* game ) {
     SDL_RenderClear( game->renderer );
+
+    // Load blocks textures
+    if ( !init_blocks_textures( game->renderer ) ) {
+        perror("Failed to load blocks textures");
+        game_quit( game );
+        return;
+    }
+
+    game->frame_count = 0;
+    game->current_time = clock();
 }
 
 void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
+    float player_x, player_y;
+
     switch ( key->keysym.sym ) {
         case SDLK_SPACE:
             // Center camera on player
-            camera_set_pos_center( game->camera, game->player->x, game->player->y );
+            player_get_pos( game->player, &player_x, &player_y );
+            camera_set_pos_center( game->camera, player_x, player_y );
             break;
         case SDLK_EXCLAIM:
             // Show debug info
             float camera_x, camera_y;
-            float player_x, player_y;
             int mouse_screen_x, mouse_screen_y;
             float mouse_world_x, mouse_world_y;
             camera_get_pos_center( game->camera, &camera_x, &camera_y );
@@ -127,10 +157,11 @@ void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
             camera_screentoworld_pos( game->camera, &mouse_world_x, &mouse_world_y, mouse_screen_x, mouse_screen_y );
 
             printf("frame count       : %d\n", game->frame_count);
+            printf("frame time        : %lf ms\n", game->frame_time);
             printf("player world pos  : %f %f\n", player_x, player_y);
             printf("camera center pos : %f %f\n", camera_x, camera_y);
-            printf("mouse screen pos : %d %d\n", mouse_screen_x, mouse_screen_y);
-            printf("mouse world pos  : %f %f\n", mouse_world_x, mouse_world_y);
+            printf("mouse screen pos  : %d %d\n", mouse_screen_x, mouse_screen_y);
+            printf("mouse world pos   : %f %f\n", mouse_world_x, mouse_world_y);
 
             puts("");
             break;
@@ -168,13 +199,26 @@ void game_render( game_t* game ) {
     sprite_render( game->background, game->renderer );
 
     // Render blocks
-    // world_render( game->world, game->camera, game->renderer );
+    world_render( game->world, game->camera, game->renderer );
 
     // Render the player
     player_render( game->player, game->camera, game->renderer );
 
     // Present the back buffer
     SDL_RenderPresent( game->renderer );
+}
+
+void game_delay( game_t* game ) {
+    game->frame_time = ( clock() - game->current_time ) * 1000.0 / CLOCKS_PER_SEC;
+
+    if ( game->frame_time < FRAME_TIME ) {
+        SDL_Delay( FRAME_TIME - game->frame_time );
+    }
+    else {
+        printf("Frame time exceeded : %lf ms", game->frame_time); puts("");
+    }
+
+    game->current_time = clock();
 }
 
 void game_run( game_t* game ) {
@@ -189,6 +233,6 @@ void game_run( game_t* game ) {
 
         game_render( game );
 
-        SDL_Delay( FRAME_TIME );
+        game_delay( game );
     }
 }

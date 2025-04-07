@@ -27,6 +27,7 @@ void camera_set_pos_center( camera_t* camera, float x, float y );
 
 void camera_get_pos( camera_t* camera, float *x, float *y );
 void camera_get_pos_center( camera_t* camera, float *x, float *y );
+void camera_get_shape( camera_t* camera, float *w, float *h );
 // void camera_get_scale( camera_t* camera, float *scale );
 
 #endif
