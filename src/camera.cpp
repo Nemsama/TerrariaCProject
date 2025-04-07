@@ -7,12 +7,12 @@ camera_t* camera_init( float x, float y, float scale ) {
         return NULL;
     }
 
-    camera->x = x;
-    camera->y = y;
-    camera->scale = scale;
+    camera->world_rect.x = x;
+    camera->world_rect.y = y;
+    camera->world_rect.w = (float)WINDOW_WIDTH  / PIXELS_PER_BLOCK;
+    camera->world_rect.h = (float)WINDOW_HEIGHT / PIXELS_PER_BLOCK;
 
-    camera->width  = WINDOW_WIDTH  / PIXELS_PER_BLOCK;
-    camera->height = WINDOW_HEIGHT / PIXELS_PER_BLOCK;
+    camera->scale = scale;
 
     return camera;
 }
@@ -22,49 +22,45 @@ void camera_destroy( camera_t* camera ) {
 }
 
 bool camera_is_inside( camera_t* camera, float world_x, float world_y ) {
-    if ( world_x < camera->x ) return false;
-    else if ( world_x > ( camera->x + camera->width  ) ) return false;
-    else if ( world_y < camera->y ) return false;
-    else if ( world_y > ( camera->y + camera->height ) ) return false;
+    if      ( world_x < camera->world_rect.x ) return false;
+    else if ( world_y < camera->world_rect.y ) return false;
+    else if ( world_x > ( camera->world_rect.x + camera->world_rect.w ) ) return false;
+    else if ( world_y > ( camera->world_rect.y + camera->world_rect.h ) ) return false;
     else return true;
 }
-bool camera_is_seeing( camera_t* camera, SDL_Rect rect ) {
-    SDL_Rect camera_rect = {(int)camera->x, (int)camera->y, (int)camera->width, (int)camera->height};
-
-    return SDL_HasIntersection( &rect, &camera_rect );
+bool camera_is_seeing( camera_t* camera, rect_t* rect ) {
+    return rect_collision( &camera->world_rect, rect );
 }
 
 void camera_worldtoscreen_pos( camera_t* camera, float  world_x, float  world_y, int *screen_x, int *screen_y ) {
-    if ( screen_x ) *screen_x = (int)((world_x - camera->x) * PIXELS_PER_BLOCK);
-    int upward_y = (int)((world_y - camera->y) * PIXELS_PER_BLOCK);
-    if ( screen_y ) *screen_y = (int)( camera->height * PIXELS_PER_BLOCK ) - upward_y;
+    if ( screen_x ) *screen_x = (int)((world_x - camera->world_rect.x) * PIXELS_PER_BLOCK);
+    if ( screen_y ) *screen_y = (int)((world_y - camera->world_rect.y) * PIXELS_PER_BLOCK);
 }
 
 void camera_screentoworld_pos( camera_t* camera, float *world_x, float *world_y, int  screen_x, int  screen_y ) {
-    if ( world_x ) *world_x = (float)screen_x / PIXELS_PER_BLOCK + camera->x;
-    int upward_y = (int)( camera->height * PIXELS_PER_BLOCK ) - screen_y;
-    if ( world_y ) *world_y = (float)upward_y / PIXELS_PER_BLOCK + camera->y;
+    if ( world_x ) *world_x = (float)screen_x / PIXELS_PER_BLOCK + camera->world_rect.x;
+    if ( world_y ) *world_y = (float)screen_y / PIXELS_PER_BLOCK + camera->world_rect.y;
 }
 
 void camera_get_pos( camera_t* camera, float *x, float *y ) {
-    if ( x ) *x = camera->x;
-    if ( y ) *y = camera->y;
+    if ( x ) *x = camera->world_rect.x;
+    if ( y ) *y = camera->world_rect.y;
 }
 void camera_get_pos_center( camera_t* camera, float *x, float *y ) {
-    if ( x ) *x = camera->x + (camera->width / 2);
-    if ( y ) *y = camera->y + (camera->height / 2);
+    if ( x ) *x = camera->world_rect.x + camera->world_rect.w / 2;
+    if ( y ) *y = camera->world_rect.y + camera->world_rect.h / 2;
 }
 /* void camera_get_scale( camera_t* camera, float *scale ) {
     if ( scale ) *scale = camera->scale;
 } */
 
 void camera_set_pos( camera_t* camera, float x, float y ) {
-    camera->x = x;
-    camera->y = y;
+    camera->world_rect.x = x;
+    camera->world_rect.y = y;
 }
 void camera_set_pos_center( camera_t* camera, float x, float y ) {
-    camera->x = x - camera->width /2;
-    camera->y = y - camera->height/2;
+    camera->world_rect.x = x - camera->world_rect.w / 2;
+    camera->world_rect.y = y - camera->world_rect.h / 2;
 }
 /* 
 void camera_set_scale( camera_t* camera, float scale ) {

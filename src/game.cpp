@@ -168,7 +168,7 @@ void game_render( game_t* game ) {
     sprite_render( game->background, game->renderer );
 
     // Render blocks
-    world_render( game->world, game->camera, game->renderer );
+    // world_render( game->world, game->camera, game->renderer );
 
     // Render the player
     player_render( game->player, game->camera, game->renderer );

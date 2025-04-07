@@ -24,19 +24,19 @@ void destroy_blocks_textures( void ) {
     }
 }
 
-void world_set_block( world_t world, int x, int y, block_type_t type ) {
+void world_set_block( world_t* world, int x, int y, block_type_t type ) {
     if ( !world ) return;
     if ( x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT ) return;
 
-    world[x][y] = type;
+    (*world)[x][y] = type;
 }
-void world_set_blocks( world_t world, int x, int width, int y, int height, block_type_t type ) {
+void world_set_blocks( world_t* world, int x, int width, int y, int height, block_type_t type ) {
     if ( !world ) return;
     if ( x < 0 || x + width > WORLD_WIDTH || y < 0 || y + height > WORLD_HEIGHT ) return;
 
     for ( int i = x; i < x+width; i++ ) {
         for ( int j = y; j < y+height; j++ ) {
-            world[i][j] = type;
+            (*world)[i][j] = type;
         }
     }
 }

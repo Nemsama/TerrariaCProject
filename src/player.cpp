@@ -13,8 +13,10 @@ player_t* player_init( sprite_t* sprite, float x, float y, float speed ) {
     }
     
     player->sprite = sprite;
-    player->x = x;
-    player->y = y;
+    rect_set_pos( &player->world_rect, x, y );
+    rect_set_size( &player->world_rect, 
+                   (float)player->sprite->dest_rect.w / PIXELS_PER_BLOCK, 
+                   (float)player->sprite->dest_rect.h / PIXELS_PER_BLOCK );
     player->speed = speed;
 
     return player;
@@ -23,30 +25,28 @@ player_t* player_init( sprite_t* sprite, float x, float y, float speed ) {
 void player_set_pos( player_t* player, float x, float y ) {
     if ( !player ) return;
 
-    player->x = x;
-    player->y = y;
+    rect_set_pos( &player->world_rect, x, y );
 }
 void player_get_pos( player_t* player, float* x, float* y ) {
     if ( !player ) return;
 
-    if ( x ) *x = player->x;
-    if ( y ) *y = player->y;
+    rect_get_pos( &player->world_rect, x, y );
 }
 
 void player_update(player_t* player, const Uint8* keystate) {
     // static float movement_buffer = 0.0f;
 
     if ( keystate[SDL_SCANCODE_A] ) {
-        player->x -= player->speed;
+        player->world_rect.x -= player->speed;
     }
     if ( keystate[SDL_SCANCODE_D] ) {
-        player->x += player->speed;
+        player->world_rect.x += player->speed;
     }
     if ( keystate[SDL_SCANCODE_W] ) {
-        player->y += player->speed;
+        player->world_rect.y -= player->speed;
     }
     if ( keystate[SDL_SCANCODE_S] ) {
-        player->y -= player->speed;
+        player->world_rect.y += player->speed;
     }
 }
 
@@ -58,9 +58,9 @@ void player_destroy(player_t* player) {
 }
 
 void player_render( player_t* player, camera_t* camera, SDL_Renderer* renderer ) {
-    if ( camera_is_inside( camera, player->x, player->y ) ) {
+    if ( camera_is_seeing( camera, &player->world_rect ) ) {
         int player_screen_x, player_screen_y;
-        camera_worldtoscreen_pos( camera, player->x, player->y, &player_screen_x, &player_screen_y );
+        camera_worldtoscreen_pos( camera, player->world_rect.x, player->world_rect.y, &player_screen_x, &player_screen_y );
         sprite_set_pos( player->sprite, player_screen_x, player_screen_y );
 
         sprite_render( player->sprite, renderer );

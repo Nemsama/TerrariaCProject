@@ -2,8 +2,10 @@
 #define BLOCKS_H
 
 #include <common.h>
+#include <camera.h>
+#include <sprite.h>
 
-#define BLOCK_TYPES_COUNT 4
+#define BLOCK_TYPES_COUNT 6
 typedef enum {
     AIR,
     DIRT,

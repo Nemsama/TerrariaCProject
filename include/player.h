@@ -3,10 +3,11 @@
 
 #include <sprite.h>
 #include <camera.h>
+#include <rect.h>
 
 typedef struct player {
     sprite_t* sprite;
-    float x, y;       // world position
+    rect_t world_rect;
     float speed;
 
     // int health;
