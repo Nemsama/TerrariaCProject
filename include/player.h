@@ -13,7 +13,10 @@ typedef struct player {
     // int health;
 } player_t;
 
-// need a valid (pre-initiated) sprite pointer
+// need a valid (pre-initiated) sprite (pointer)
+// x, y : world position
+// 
+// RETURN : 
 player_t* player_init( sprite_t* sprite, float x, float y, float speed );
 
 void player_set_pos( player_t* player, float x, float y );

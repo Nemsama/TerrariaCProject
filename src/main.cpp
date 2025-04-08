@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
+#include <common.h>
 #include <game.h>
 
 int main() {

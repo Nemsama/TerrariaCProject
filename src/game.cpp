@@ -2,16 +2,16 @@
 
 game_t* game_init( void ) {
     // Allocate memory for the game structure
-    game_t* game = (game_t*)malloc( sizeof(*game) );
+    game_t* game = (game_t*)calloc( 1, sizeof(*game) );
     if ( game == NULL ) {
         perror("Failed to allocate memory for game structure");
         return NULL;
     }
 
     // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
         perror("Failed to initialize SDL");
-        free(game);
+        game_quit( game );
         return NULL;
     }
 
@@ -24,8 +24,7 @@ game_t* game_init( void ) {
                                      SDL_WINDOW_SHOWN );
     if ( game->window == NULL ) {
         perror("Failed to create window");
-        SDL_Quit();
-        free(game);
+        game_quit( game );
         return NULL;
     }
 
@@ -33,9 +32,7 @@ game_t* game_init( void ) {
     game->renderer = SDL_CreateRenderer( game->window, -1, SDL_RENDERER_ACCELERATED );
     if ( game->renderer == NULL ) {
         perror("Failed to create renderer");
-        SDL_DestroyWindow( game->window );
-        SDL_Quit();
-        free(game);
+        game_quit( game );
         return NULL;
     }
 
@@ -43,10 +40,7 @@ game_t* game_init( void ) {
     game->background = sprite_init( "assets/background/Blue_sky.png", game->renderer, 0, 0, 2048, 1024 );
     if ( game->background == NULL ) {
         perror("Failed to create background sprite");
-        SDL_DestroyRenderer( game->renderer );
-        SDL_DestroyWindow( game->window );
-        SDL_Quit();
-        free(game);
+        game_quit( game );
         return NULL;
     }
     sprite_set_scale( game->background, WINDOW_WIDTH, WINDOW_HEIGHT );
@@ -56,24 +50,14 @@ game_t* game_init( void ) {
     game->player = player_init( player_sprite, WORLD_SPAWN_X, WORLD_SPAWN_Y, PLAYER_BASE_SPEED );
     if ( game->player == NULL ) {
         perror("Failed to create player");
-        sprite_destroy( player_sprite );
-        sprite_destroy( game->background );
-        SDL_DestroyRenderer( game->renderer );
-        SDL_DestroyWindow( game->window );
-        SDL_Quit();
-        free(game);
+        game_quit( game );
         return NULL;
     }
 
-    game->camera = camera_init( 0.0f, 0.0f, 1.0f );
+    game->camera = camera_init( 0.0f, 0.0f, CAMERA_SCALE, CAMERA_SPEED );
     if ( game->camera == NULL ) {
         perror("Failed to create camera");
-        player_destroy( game->player );
-        sprite_destroy( game->background );
-        SDL_DestroyRenderer( game->renderer );
-        SDL_DestroyWindow( game->window );
-        SDL_Quit();
-        free(game);
+        game_quit( game );
         return NULL;
     }
     camera_set_pos_center( game->camera, WORLD_SPAWN_X, WORLD_SPAWN_Y );
@@ -82,13 +66,7 @@ game_t* game_init( void ) {
     game->world = world_init();
     if ( game->world == NULL ) {
         perror("Failed to create world");
-        camera_destroy( game->camera );
-        player_destroy( game->player );
-        sprite_destroy( game->background );
-        SDL_DestroyRenderer( game->renderer );
-        SDL_DestroyWindow( game->window );
-        SDL_Quit();
-        free(game);
+        game_quit( game );
         return NULL;
     }
 
@@ -102,20 +80,20 @@ game_t* game_init( void ) {
 }
 
 void game_quit( game_t* game ) {
-    if ( !game ) return;
+    if ( NULL == game ) return;
 
     game->running = false;
 
-    world_destroy( game->world );
-    destroy_blocks_textures();
-    camera_destroy( game->camera );
+    if ( NULL != game->world ) world_destroy( game->world );
+    destroy_blocks_types();
+    if ( NULL != game->camera ) camera_destroy( game->camera );
 
-    player_destroy( game->player );
+    if ( NULL != game->player ) player_destroy( game->player );
 
-    sprite_destroy( game->background );
+    if ( NULL != game->background ) sprite_destroy( game->background );
 
-    SDL_DestroyRenderer( game->renderer );
-    SDL_DestroyWindow( game->window );
+    if ( NULL != game->renderer ) SDL_DestroyRenderer( game->renderer );
+    if ( NULL != game->window ) SDL_DestroyWindow( game->window );
 
     SDL_Quit();
 
@@ -127,7 +105,7 @@ void game_start( game_t* game ) {
     SDL_RenderClear( game->renderer );
 
     // Load blocks textures
-    if ( !init_blocks_textures( game->renderer ) ) {
+    if ( !init_blocks_types( game->renderer ) ) {
         perror("Failed to load blocks textures");
         game_quit( game );
         return;
@@ -141,11 +119,11 @@ void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
     float player_x, player_y;
 
     switch ( key->keysym.sym ) {
-        case SDLK_SPACE:
+        /* case SDLK_SPACE: // now done in camera_update
             // Center camera on player
             player_get_pos( game->player, &player_x, &player_y );
             camera_set_pos_center( game->camera, player_x, player_y );
-            break;
+            break; */
         case SDLK_EXCLAIM:
             // Show debug info
             float camera_x, camera_y;
@@ -188,6 +166,10 @@ void game_update( game_t* game ) {
     const Uint8* keystate = SDL_GetKeyboardState( NULL );
 
     player_update( game->player, keystate );
+
+    float player_x, player_y;
+    player_get_pos( game->player, &player_x, &player_y );
+    camera_update( game->camera, player_x, player_y, keystate );
 }
 
 void game_render( game_t* game ) {

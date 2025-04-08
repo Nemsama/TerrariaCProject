@@ -7,9 +7,10 @@
 typedef struct camera {
     rect_t world_rect; // world position
     float scale;
+    float speed;
 } camera_t;
 
-camera_t* camera_init( float x, float y, float scale );
+camera_t* camera_init( float x, float y, float scale, float speed );
 void camera_destroy( camera_t* camera );
 
 // void camera_update( camera_t* camera, const Uint8* keystate );
@@ -29,5 +30,7 @@ void camera_get_pos( camera_t* camera, float *x, float *y );
 void camera_get_pos_center( camera_t* camera, float *x, float *y );
 void camera_get_shape( camera_t* camera, float *w, float *h );
 // void camera_get_scale( camera_t* camera, float *scale );
+
+void camera_update( camera_t* camera, float target_x, float target_y, const Uint8* keystate );
 
 #endif

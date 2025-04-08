@@ -13,9 +13,8 @@ typedef enum {
     INVALID,
     STONE
 } block_type_t;
-extern SDL_Texture* blocks_textures[]; // textures for each block type
+
 #define BLOCK_TEXTURES_PATH "assets/blocks/"
-#define BLOCK_TEXTURES_EXT  ".png"
 #define BLOCK_TEXTURES_NAMES { \
     "air", \
     "dirt", \
@@ -23,6 +22,7 @@ extern SDL_Texture* blocks_textures[]; // textures for each block type
     "invalid", \
     "stone" \
 }
+#define BLOCK_TEXTURES_EXT  ".png"
 
 typedef struct block {
     block_type_t type;
@@ -30,10 +30,12 @@ typedef struct block {
     int x, y;          // world position
 } block_t;
 
+extern block_t* blocks_types[]; // block struct for each block type
+
 typedef block_type_t world_t[WORLD_WIDTH][WORLD_HEIGHT];
 
-bool init_blocks_textures( SDL_Renderer* renderer );
-void destroy_blocks_textures( void );
+bool init_blocks_types( SDL_Renderer* renderer );
+void destroy_blocks_types( void );
 
 world_t* world_init( /* world parameters */ );
 void world_destroy( world_t* world );

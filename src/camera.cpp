@@ -1,6 +1,6 @@
 #include <camera.h>
 
-camera_t* camera_init( float x, float y, float scale ) {
+camera_t* camera_init( float x, float y, float scale, float speed ) {
     camera_t* camera = (camera_t*)calloc( 1, sizeof(*camera) );
     if ( NULL == camera ) {
         perror("Failed to allocate memory for camera structure");
@@ -13,6 +13,8 @@ camera_t* camera_init( float x, float y, float scale ) {
     camera->world_rect.h = (float)WINDOW_HEIGHT / PIXELS_PER_BLOCK;
 
     camera->scale = scale;
+
+    camera->speed = speed;
 
     return camera;
 }
@@ -79,3 +81,25 @@ void camera_set_scale( camera_t* camera, float scale ) {
     // recenter the camera
     camera_set_pos_center( camera, center_x, center_y );
 } */
+
+void camera_update( camera_t* camera, float target_x, float target_y, const Uint8* keystate ) {
+    if ( camera == NULL ) return;
+
+    if ( keystate[SDL_SCANCODE_SPACE] ) {
+        // Center camera on target
+        camera_set_pos_center( camera, target_x, target_y );
+    }
+
+    if ( keystate[SDL_SCANCODE_LEFT] ) {
+        camera->world_rect.x -= camera->speed;
+    }
+    if ( keystate[SDL_SCANCODE_RIGHT] ) {
+        camera->world_rect.x += camera->speed;
+    }
+    if ( keystate[SDL_SCANCODE_UP] ) {
+        camera->world_rect.y -= camera->speed;
+    }
+    if ( keystate[SDL_SCANCODE_DOWN] ) {
+        camera->world_rect.y += camera->speed;
+    }
+}

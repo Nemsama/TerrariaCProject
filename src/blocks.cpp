@@ -1,31 +1,37 @@
 #include <blocks.h>
 
-SDL_Texture* blocks_textures[BLOCK_TYPES_COUNT];
+block_t* blocks_types[BLOCK_TYPES_COUNT] = { NULL, NULL, NULL, NULL, NULL };
 
-bool init_blocks_textures( SDL_Renderer* renderer ) {
+bool init_blocks_types( SDL_Renderer* renderer ) {
     char texture_path[256];
     const char* block_texture_names[BLOCK_TYPES_COUNT] = BLOCK_TEXTURES_NAMES;
 
     for ( int i = 0; i < BLOCK_TYPES_COUNT; i++ ) {
-        
+        blocks_types[i] = (block_t*)calloc( 1, sizeof(*blocks_types[i]) );
+        if ( blocks_types[i] == NULL ) {
+            perror("Failed to allocate memory for block from blocks_types");
+            return false;
+        }
+
+        blocks_types[i]->type = (block_type_t)i;
 
         snprintf( texture_path, sizeof(texture_path), "%s%s%s", BLOCK_TEXTURES_PATH, block_texture_names[i], BLOCK_TEXTURES_EXT );
-        blocks_textures[i] = IMG_LoadTexture( renderer, texture_path );
-        if ( blocks_textures[i] == NULL ) {
-            printf("Failed to load texture %d\n", i);
-            perror("Failed to load block texture");
+        blocks_types[i]->sprite = sprite_init( texture_path, renderer, 0, 0, BLOCK_SIZE, BLOCK_SIZE );
+        if ( blocks_types[i]->sprite == NULL ) {
+            perror("Failed to create blocks_types sprite");
+            destroy_blocks_types();
             return false;
         }
     }
 
     return true;
 }
-void destroy_blocks_textures( void ) {
+void destroy_blocks_types( void ) {
     for ( int i = 0; i < BLOCK_TYPES_COUNT; i++ ) {
-        if ( blocks_textures[i] != NULL ) {
-            SDL_DestroyTexture( blocks_textures[i] );
-            blocks_textures[i] = NULL;
-        }
+        if ( blocks_types[i] == NULL ) continue;
+
+        sprite_destroy( blocks_types[i]->sprite );
+        free( blocks_types[i] );
     }
 }
 
@@ -53,11 +59,11 @@ world_t* world_init( /* world parameters */ ) {
         return NULL;
     }
 
-    world_set_blocks( world, 0, WORLD_WIDTH , WORLD_HEIGHT/2, WORLD_HEIGHT/2, AIR );
+    world_set_blocks( world, 0, WORLD_WIDTH ,                 0,     WORLD_HEIGHT/2, AIR   );
 
-    world_set_blocks( world, 0, WORLD_WIDTH, (WORLD_HEIGHT/2)- 1,                   1, GRASS );
-    world_set_blocks( world, 0, WORLD_WIDTH, (WORLD_HEIGHT/2)-10,                   9, DIRT  );
-    world_set_blocks( world, 0, WORLD_WIDTH,                   0, (WORLD_HEIGHT/2)-10, STONE );
+    world_set_blocks( world, 0, WORLD_WIDTH,  WORLD_HEIGHT/2   ,                  1, GRASS );
+    world_set_blocks( world, 0, WORLD_WIDTH, (WORLD_HEIGHT/2)+1,                  7, DIRT  );
+    world_set_blocks( world, 0, WORLD_WIDTH, (WORLD_HEIGHT/2)+8, (WORLD_HEIGHT/2)-8, STONE );
 
     return world;
 }
@@ -79,8 +85,8 @@ void block_render( block_t* block, camera_t* camera, SDL_Renderer* renderer ) {
 
 void world_render( world_t* world, camera_t* camera, SDL_Renderer* renderer ) {
     if ( world == NULL || camera == NULL || renderer == NULL ) return;
-    block_t block;
-    block.sprite = sprite_init_texture( blocks_textures[INVALID], 0, 0, 32, 32 );
+    block_type_t block_type;
+    block_t* block;
     float camera_x, camera_y;
     float camera_w, camera_h;
     camera_get_pos( camera, &camera_x, &camera_y );
@@ -88,15 +94,21 @@ void world_render( world_t* world, camera_t* camera, SDL_Renderer* renderer ) {
 
     for ( int x = (int)camera_x; x < camera_x + camera_w; x++ ) {
         for ( int y = (int)camera_y; y < camera_y + camera_h; y++ ) {
-            block.type = (*world)[x][y];
-            block.x = x;
-            block.y = y;
+            if ( x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT ) continue;
 
-            if ( block.type == AIR ) continue;
+            block_type = (*world)[x][y];
             
-            sprite_set_texture( block.sprite, blocks_textures[block.type] );
-            block_render( &block, camera, renderer );
+            if ( block_type == AIR ) continue;
+            
+            block = blocks_types[block_type];
+            if ( block == NULL ) {
+                fprintf(stderr, "Block type %d not found\n", block_type);
+                continue;
+            }
+
+            block->x = x;
+            block->y = y;
+            block_render( block, camera, renderer );
         }
     }
-    sprite_destroy( block.sprite );
 }
