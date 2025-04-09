@@ -21,6 +21,6 @@
 #define WORLD_HEIGHT 1024
 #define WORLD_SPAWN_X 1024.0f
 #define WORLD_SPAWN_Y 512.0f
-#define PLAYER_BASE_SPEED 0.2f
+#define PLAYER_BASE_SPEED 1.2f
 
 #endif

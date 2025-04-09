@@ -3,6 +3,7 @@
 
 #include <common.h>
 #include <rect.h>
+#include <utils.h>
 
 typedef struct camera {
     rect_t world_rect; // world position

@@ -48,6 +48,8 @@ void player_update(player_t* player, const Uint8* keystate) {
     if ( keystate[SDL_SCANCODE_S] ) {
         player->world_rect.y += player->speed;
     }
+
+    prevent_world_exit( &player->world_rect );
 }
 
 void player_destroy(player_t* player) {

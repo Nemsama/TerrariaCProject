@@ -102,4 +102,6 @@ void camera_update( camera_t* camera, float target_x, float target_y, const Uint
     if ( keystate[SDL_SCANCODE_DOWN] ) {
         camera->world_rect.y += camera->speed;
     }
+
+    prevent_world_exit( &camera->world_rect );
 }

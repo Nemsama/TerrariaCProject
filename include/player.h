@@ -1,9 +1,11 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <common.h>
 #include <sprite.h>
 #include <camera.h>
 #include <rect.h>
+#include <utils.h>
 
 typedef struct player {
     sprite_t* sprite;
