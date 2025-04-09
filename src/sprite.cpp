@@ -98,11 +98,6 @@ void sprite_scale(  sprite_t* sprite, float scale_x, float scale_y ) {
     sprite->dest_rect.h *= scale_y;
 }
 
-void sprite_render( sprite_t* sprite, SDL_Renderer* renderer ) {
-    // Render the sprite to the screen
-    SDL_RenderCopy( renderer, sprite->texture, &sprite->src_rect, &sprite->dest_rect );
-}
-
 void sprite_set_texture( sprite_t* sprite, SDL_Texture* texture ) {
     if ( sprite == NULL ) return;
 
@@ -134,4 +129,9 @@ void sprite_set_texture_path( sprite_t* sprite, const char* texture_path, SDL_Re
 
     // Set the new texture
     sprite_set_texture( sprite, new_texture );
+}
+
+void sprite_render( sprite_t* sprite, SDL_Renderer* renderer ) {
+    // Render the sprite to the screen
+    SDL_RenderCopy( renderer, sprite->texture, &sprite->src_rect, &sprite->dest_rect );
 }

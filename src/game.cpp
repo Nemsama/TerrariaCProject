@@ -1,21 +1,18 @@
 #include <game.h>
 
 game_t* game_init( void ) {
-    // Allocate memory for the game structure
     game_t* game = (game_t*)calloc( 1, sizeof(*game) );
     if ( game == NULL ) {
         perror("Failed to allocate memory for game structure");
         return NULL;
     }
 
-    // Initialize SDL
     if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
         perror("Failed to initialize SDL");
         game_quit( game );
         return NULL;
     }
 
-    // Create window
     game->window = SDL_CreateWindow( WINDOW_TITLE,
                                      SDL_WINDOWPOS_CENTERED,
                                      SDL_WINDOWPOS_CENTERED,
@@ -28,7 +25,6 @@ game_t* game_init( void ) {
         return NULL;
     }
 
-    // Create renderer
     game->renderer = SDL_CreateRenderer( game->window, -1, SDL_RENDERER_ACCELERATED );
     if ( game->renderer == NULL ) {
         perror("Failed to create renderer");
@@ -36,7 +32,6 @@ game_t* game_init( void ) {
         return NULL;
     }
 
-    // Load background sprite
     game->background = sprite_init( "assets/background/Blue_sky.png", game->renderer, 0, 0, 2048, 1024 );
     if ( game->background == NULL ) {
         perror("Failed to create background sprite");
@@ -47,22 +42,21 @@ game_t* game_init( void ) {
     sprite_set_pos( game->background, 0, 0 );
 
     sprite_t* player_sprite = sprite_init( "assets/sprites/Guide_idle_clean.png", game->renderer, 0, 0, 48, 82 );
-    game->player = player_init( player_sprite, WORLD_SPAWN_X, WORLD_SPAWN_Y, PLAYER_BASE_SPEED );
+    game->player = (player_t*)entity_init( player_sprite, vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y), PLAYER_MASS, PLAYER_BASE_SPEED );
     if ( game->player == NULL ) {
         perror("Failed to create player");
         game_quit( game );
         return NULL;
     }
 
-    game->camera = camera_init( 0.0f, 0.0f, CAMERA_SCALE, CAMERA_SPEED );
+    game->camera = camera_init( vector2_zero(), CAMERA_SCALE, CAMERA_SPEED );
     if ( game->camera == NULL ) {
         perror("Failed to create camera");
         game_quit( game );
         return NULL;
     }
-    camera_set_pos_center( game->camera, WORLD_SPAWN_X, WORLD_SPAWN_Y );
+    camera_set_pos_center( game->camera, vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y) );
 
-    // Initialize world
     game->world = world_init();
     if ( game->world == NULL ) {
         perror("Failed to create world");
@@ -88,7 +82,7 @@ void game_quit( game_t* game ) {
     destroy_blocks_types();
     if ( NULL != game->camera ) camera_destroy( game->camera );
 
-    if ( NULL != game->player ) player_destroy( game->player );
+    if ( NULL != game->player ) entity_destroy( game->player );
 
     if ( NULL != game->background ) sprite_destroy( game->background );
 
@@ -116,30 +110,26 @@ void game_start( game_t* game ) {
 }
 
 void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
-    float player_x, player_y;
 
     switch ( key->keysym.sym ) {
-        /* case SDLK_SPACE: // now done in camera_update
-            // Center camera on player
-            player_get_pos( game->player, &player_x, &player_y );
-            camera_set_pos_center( game->camera, player_x, player_y );
-            break; */
         case SDLK_EXCLAIM:
             // Show debug info
-            float camera_x, camera_y;
+            vector2_t player_pos;
+            vector2_t camera_pos;
             int mouse_screen_x, mouse_screen_y;
-            float mouse_world_x, mouse_world_y;
-            camera_get_pos_center( game->camera, &camera_x, &camera_y );
-            player_get_pos( game->player, &player_x, &player_y );
+            vector2_t mouse_world_pos;
+
+            camera_get_pos_center( game->camera, &camera_pos );
+            entity_get_pos( game->player, &player_pos );
             SDL_GetMouseState( &mouse_screen_x, &mouse_screen_y );
-            camera_screentoworld_pos( game->camera, &mouse_world_x, &mouse_world_y, mouse_screen_x, mouse_screen_y );
+            camera_screentoworld_pos( game->camera, &mouse_world_pos, mouse_screen_x, mouse_screen_y );
 
             printf("frame count       : %d\n", game->frame_count);
             printf("frame time        : %lf ms\n", game->frame_time);
-            printf("player world pos  : %f %f\n", player_x, player_y);
-            printf("camera center pos : %f %f\n", camera_x, camera_y);
+            printf("player world pos  : "); vector2_print( player_pos );           printf("\n");
+            printf("camera center pos : "); vector2_print( camera_pos );           printf("\n");
             printf("mouse screen pos  : %d %d\n", mouse_screen_x, mouse_screen_y);
-            printf("mouse world pos   : %f %f\n", mouse_world_x, mouse_world_y);
+            printf("mouse world pos   : "); vector2_print( mouse_world_pos );      printf("\n");
 
             puts("");
             break;
@@ -167,9 +157,7 @@ void game_update( game_t* game ) {
 
     player_update( game->player, keystate );
 
-    float player_x, player_y;
-    player_get_pos( game->player, &player_x, &player_y );
-    camera_update( game->camera, player_x, player_y, keystate );
+    camera_update( game->camera, entity_output_pos( game->player ), keystate );
 }
 
 void game_render( game_t* game ) {
@@ -184,7 +172,7 @@ void game_render( game_t* game ) {
     world_render( game->world, game->camera, game->renderer );
 
     // Render the player
-    player_render( game->player, game->camera, game->renderer );
+    entity_render( game->player, game->camera, game->renderer );
 
     // Present the back buffer
     SDL_RenderPresent( game->renderer );

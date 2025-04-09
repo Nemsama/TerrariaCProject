@@ -3,6 +3,7 @@
 
 #include <common.h>
 #include <rect.h>
+#include <vector.h>
 
 void prevent_exit( rect_t* rect, rect_t* boundaries );
 void prevent_world_exit( rect_t* rect );

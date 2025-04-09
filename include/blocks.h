@@ -4,6 +4,7 @@
 #include <common.h>
 #include <camera.h>
 #include <sprite.h>
+#include <vector.h>
 
 #define BLOCK_TYPES_COUNT 5
 typedef enum {

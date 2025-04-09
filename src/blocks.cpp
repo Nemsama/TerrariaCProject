@@ -76,7 +76,9 @@ void world_destroy( world_t* world ) {
 void block_render( block_t* block, camera_t* camera, SDL_Renderer* renderer ) {
     if ( block == NULL || camera == NULL || renderer == NULL ) return;
 
-    camera_worldtoscreen_pos( camera, block->x, block->y, &block->sprite->dest_rect.x, &block->sprite->dest_rect.y );
+    int block_screen_x, block_screen_y;
+    camera_worldtoscreen_pos( camera, vector2_new( (float)block->x, (float)block->y ), &block_screen_x, &block_screen_y );
+    sprite_set_pos( block->sprite, block_screen_x, block_screen_y );
 
     // printf("block %d %d %d %d\n", block->x, block->y, block->sprite->dest_rect.x, block->sprite->dest_rect.y);
 
@@ -87,13 +89,13 @@ void world_render( world_t* world, camera_t* camera, SDL_Renderer* renderer ) {
     if ( world == NULL || camera == NULL || renderer == NULL ) return;
     block_type_t block_type;
     block_t* block;
-    float camera_x, camera_y;
-    float camera_w, camera_h;
-    camera_get_pos( camera, &camera_x, &camera_y );
-    camera_get_shape( camera, &camera_w, &camera_h );
+    vector2_t camera_pos;
+    vector2_t camera_shape;
+    camera_get_pos( camera, &camera_pos );
+    camera_get_shape( camera, &camera_shape );
 
-    for ( int x = (int)camera_x; x < camera_x + camera_w; x++ ) {
-        for ( int y = (int)camera_y; y < camera_y + camera_h; y++ ) {
+    for ( int x = (int)camera_pos.x; x < camera_pos.x + camera_shape.x; x++ ) {
+        for ( int y = (int)camera_pos.y; y < camera_pos.y + camera_shape.y; y++ ) {
             if ( x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT ) continue;
 
             block_type = (*world)[x][y];

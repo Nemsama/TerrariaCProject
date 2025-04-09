@@ -13,7 +13,7 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 TARGET = $(BUILD_DIR)/terraria
 
 # Libraries (e.g., SDL2)
-LIBS = -lSDL2 -lSDL2_image
+LIBS = -lSDL2 -lSDL2_image -lm
 
 # Default target
 all: $(TARGET)

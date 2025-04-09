@@ -2,6 +2,9 @@
 #define GAME_H
 
 #include <common.h>
+#include <utils.h>
+#include <rect.h>
+#include <vector.h>
 
 #include <camera.h>
 #include <sprite.h>

@@ -1,40 +1,38 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-#include <game.h>
+#include <common.h>
 #include <sprite.h>
 #include <camera.h>
+#include <rect.h>
+#include <utils.h>
 
-class Entity {
-public :
+typedef struct entity {
     sprite_t* sprite;
-    float x, y;       // world position
-    float speed;      // world speed
+    rect_t world_rect;
+    float movement_speed;
 
-    int health;
+    // int health;
 
-    Entity( sprite_t* sprite, float x, float, y, float speed, int health ) : sprite(sprite), x(x), y(y), speed(speed), health(health) {}
+    bool is_grounded;
+    float mass;
+    float friction;
+    vector2_t velocity;
+    vector2_t acceleration;
+} entity_t;
 
-    virtual ~Entity() {
-        if ( sprite ) {
-            sprite_destroy( sprite );
-        }
-    }
+// need a valid (pre-initiated) sprite (pointer)
+entity_t* entity_init( sprite_t* sprite, vector2_t position, float mass, float speed );
 
-    virtual void update() {
-        // nothing to update for base entity
-    }
-    
-    virtual void render( camera_t* camera, SDL_Renderer* renderer ) {
-        int screen_x, screen_y;
+void entity_set_pos( entity_t* entity, vector2_t position );
+void entity_get_pos( entity_t* entity, vector2_t* position );
+vector2_t entity_output_pos( entity_t* entity );
 
-        if ( sprite ) {
-            camera_worldtoscreen_pos( camera, x, y, &screen_x, &screen_y );
-            sprite_set_position( sprite, screen_x, screen_y );
-            // sprite_scale( sprite, 1/camera->scale, 1/camera->scale );
-            sprite_render( sprite, renderer );
-        }
-    }
-}
+void entity_render( entity_t* entity, camera_t* camera, SDL_Renderer* renderer );
+void entity_add_force( entity_t* entity, vector2_t force );
+void entity_apply_force( entity_t* entity );
+
+// free entity memory AND entity's sprite memory
+void entity_destroy( entity_t* entity );
 
 #endif
