@@ -17,6 +17,7 @@ void rect_set_shape( rect_t* rect, vector2_t shape );
 void rect_get_pos( rect_t* rect, vector2_t* position );
 vector2_t rect_output_pos( rect_t* rect );
 void rect_get_shape( rect_t* rect, vector2_t* shape );
+void rect_get_int_shape( rect_t* rect, int* width, int* height );
 vector2_t rect_output_shape( rect_t* rect );
 
 bool rect_is_inside( const rect_t* rect, const vector2_t position );

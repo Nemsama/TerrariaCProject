@@ -1,6 +1,6 @@
 #include <entity.h> 
 
-entity_t* entity_init( sprite_t* sprite, vector2_t position, float mass, float speed ) {
+entity_t* entity_init( sprite_t* sprite, vector2_t position, float mass, float speed, float max_speed /* in blocks per seconds */ ) {
     if ( !sprite ) {
         perror("An initialized sprite is needed for an entity");
         return NULL;
@@ -27,7 +27,20 @@ entity_t* entity_init( sprite_t* sprite, vector2_t position, float mass, float s
     entity->velocity = vector2_zero();
     entity->acceleration = vector2_zero();
 
+    entity->friction = speed / ( max_speed / FPS ); // friction = speed / max_speed(in blocks per frame)
+
     return entity;
+}
+
+void entity_get_shape( entity_t* entity, vector2_t* shape ) {
+    if ( !entity ) return;
+
+    rect_get_shape( &entity->world_rect, shape );
+}
+vector2_t entity_output_shape( entity_t* entity ) {
+    if ( !entity ) return vector2_zero();
+
+    return rect_output_shape( &entity->world_rect );
 }
 
 void entity_set_pos( entity_t* entity, vector2_t position ) {
@@ -67,13 +80,162 @@ void entity_render( entity_t* entity, camera_t* camera, SDL_Renderer* renderer )
 void entity_add_force( entity_t* entity, vector2_t force ) {
     if ( !entity ) return;
 
-    vector2_mult_to( 1/entity->mass, &force );
+    vector2_div_to( &force, entity->mass ); // F = m * a => a = F / m
     vector2_add_to( &entity->acceleration, force );
 }
 void entity_apply_force( entity_t* entity ) {
     if ( !entity ) return;
 
-    vector2_add_to( &entity->velocity, entity->acceleration ); // don't use friction for now
+    // apply friction
+    vector2_t friction = vector2_mult( -entity->friction, entity->velocity );
+    entity_add_force( entity, friction );
+
+    vector2_add_to( &entity->velocity, entity->acceleration );
 
     vector2_add_to( &entity->world_rect.position, entity->velocity );
+
+    if ( prevent_world_exit( &entity->world_rect ) ) {
+        entity->velocity = vector2_zero();
+    }
+
+    entity->acceleration = vector2_zero(); // reset acceleration
 }
+
+void get_colliding_coords( entity_t* entity, int* colliding_left, int* colliding_top, int* colliding_right, int* colliding_bottom ) {
+    vector2_t temp;
+    entity_get_pos( entity, &temp );
+    if ( colliding_left ) *colliding_left   = (int)vector2_get_x( temp );
+    if ( colliding_top  ) *colliding_top    = (int)vector2_get_y( temp );
+    
+    vector2_add_to( &temp, entity_output_shape( entity ) );
+    if ( colliding_right  ) *colliding_right  = (int)vector2_get_x( temp );
+    if ( colliding_bottom ) *colliding_bottom = (int)vector2_get_y( temp );
+}
+void entity_push( entity_t* entity, int colliding_right, int colliding_bottom, vector2_t displacement ) {
+    vector2_t shape;
+    if ( vector2_is_zero( displacement ) ) return;
+    // printf("pushing entity : "); vector2_print( displacement ); puts("");
+
+    entity_get_shape( entity, &shape );
+    if ( vector2_get_y( displacement ) > 0 ) {
+        entity->world_rect.position.y  = (int)entity->world_rect.position.y + 1.01f;
+        entity->velocity.y = 0;
+    }
+    else if ( vector2_get_y( displacement ) < 0 ) {
+        entity->world_rect.position.y  = (float)colliding_bottom - vector2_get_y( shape ) - 0.01f;
+        entity->velocity.y = 0;
+    }
+    if ( vector2_get_x( displacement ) > 0 ) {
+        entity->world_rect.position.x  = (int)entity->world_rect.position.x + 1.01f;
+        entity->velocity.x = 0;
+    }
+    else if ( vector2_get_x( displacement ) < 0 ) {
+        entity->world_rect.position.x  = (float)colliding_right - vector2_get_x( shape ) - 0.01f;
+        entity->velocity.x = 0;
+    }
+}
+void check_corner_collisions( entity_t* entity, world_t* world, int colliding_left, int colliding_top, int colliding_right, int colliding_bottom ) {
+    if ( !entity || !world ) return;
+
+    vector2_t colliding_boundary;
+    vector2_t corner_pos;
+    vector2_t entity_shape = entity_output_shape( entity );
+
+    vector2_t depth = vector2_zero();
+    vector2_t displacement = vector2_zero();
+    if ( AIR != world_output_block( world, colliding_left, colliding_top ) ) {
+        entity->is_grounded = true;
+
+        colliding_boundary = vector2_new( colliding_left+1.0f, colliding_top+1.0f );
+        corner_pos = entity_output_pos( entity );
+        depth = vector2_sub( colliding_boundary, corner_pos );
+
+        // printf("topleft collision, depth: "); vector2_print( depth ); puts("");
+
+        if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
+            vector2_add_to( &displacement, vector2_project_y( depth ) );
+        }
+        else {
+            vector2_add_to( &displacement, vector2_project_x( depth ) );
+        }
+    }
+    if ( AIR != world_output_block( world, colliding_right, colliding_top ) ) {
+        entity->is_grounded = true;
+
+        colliding_boundary = vector2_new( colliding_right, colliding_top+1.0f );
+        corner_pos = vector2_add( entity_output_pos( entity ), vector2_project_x( entity_shape ) );
+        depth = vector2_sub( colliding_boundary, corner_pos );
+
+        // printf("topright collision, depth: "); vector2_print( depth ); puts("");
+
+        if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
+            vector2_add_to( &displacement, vector2_project_y( depth ) );
+        }
+        else {
+            vector2_add_to( &displacement, vector2_project_x( depth ) );
+        }
+    }
+    if ( AIR != world_output_block( world, colliding_left, colliding_bottom ) ) {
+        entity->is_grounded = true;
+
+        colliding_boundary = vector2_new( colliding_left+1.0f, colliding_bottom );
+        corner_pos = vector2_add( entity_output_pos( entity ), vector2_project_y( entity_shape ) );
+        depth = vector2_sub( colliding_boundary, corner_pos );
+
+        // printf("bottomleft collision, depth: "); vector2_print( depth ); puts("");
+
+        if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
+            vector2_add_to( &displacement, vector2_project_y( depth ) );
+        }
+        else {
+            vector2_add_to( &displacement, vector2_project_x( depth ) );
+        }
+    }
+    if ( AIR != world_output_block( world, colliding_right, colliding_bottom ) ) {
+        entity->is_grounded = true;
+
+        colliding_boundary = vector2_new( colliding_right, colliding_bottom );
+        corner_pos = vector2_add( entity_output_pos( entity ), entity_shape );
+        depth = vector2_sub( colliding_boundary, corner_pos );
+
+        // printf("bottomright collision, depth: "); vector2_print( depth ); puts("");
+
+        if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
+            vector2_add_to( &displacement, vector2_project_y( depth ) );
+        }
+        else {
+            vector2_add_to( &displacement, vector2_project_x( depth ) );
+        }
+    }
+
+    if ( fabs( vector2_get_x( displacement ) ) > fabs( vector2_get_y( displacement ) ) ) {
+        entity_push( entity, colliding_right, colliding_bottom, vector2_project_x( displacement ) );
+    }
+    else {
+        entity_push( entity, colliding_right, colliding_bottom, vector2_project_y( displacement ) );
+    }
+}
+void entity_apply_collisions( entity_t* entity, world_t* world ) {
+    if ( !entity || !world ) return;
+
+    int colliding_left , colliding_top;
+    int colliding_right, colliding_bottom;
+    get_colliding_coords( entity, &colliding_left, &colliding_top, &colliding_right, &colliding_bottom );
+
+    // check for collisions within the border of the entity (no corners)
+    vector2_t displacement;
+    world_get_collisions( world, colliding_left, colliding_top, colliding_right, colliding_bottom, &displacement );
+    // printf("collisions displacement: "); vector2_print( displacement ); puts("");
+
+    // move the entity
+    if ( !vector2_is_zero( displacement ) ) {
+        // printf("entity is grounded\n");
+        entity->is_grounded = true;
+        entity_push( entity, colliding_right, colliding_bottom, displacement );
+        return;
+    }
+
+    // check for collisions within the corners of the entity
+    check_corner_collisions( entity, world, colliding_left, colliding_top, colliding_right, colliding_bottom );
+}
+

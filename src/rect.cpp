@@ -46,6 +46,12 @@ vector2_t rect_output_shape( rect_t* rect ) {
 
     return rect->shape;
 }
+void rect_get_int_shape( rect_t* rect, int* width, int* height ) {
+    if ( NULL == rect ) return;
+
+    if ( width )  *width  = (int)rect->shape.x;
+    if ( height ) *height = (int)rect->shape.y;
+}
 
 
 bool rect_is_inside( const rect_t* rect, const vector2_t position ) {

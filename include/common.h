@@ -19,9 +19,10 @@
 
 #define WORLD_WIDTH 2048
 #define WORLD_HEIGHT 1024
-#define WORLD_SPAWN_X 1024.0f
-#define WORLD_SPAWN_Y 512.0f
-#define PLAYER_BASE_SPEED 0.2f
+#define WORLD_SPAWN_X WORLD_WIDTH / 2.0f
+#define WORLD_SPAWN_Y WORLD_HEIGHT / 2.0f - 3.0f
+#define PLAYER_BASE_SPEED 0.2f // Newton(kind of)
+#define PLAYER_MAX_SPEED 20.0f // blocks per second
 #define PLAYER_MASS 10.0f
 
 #endif

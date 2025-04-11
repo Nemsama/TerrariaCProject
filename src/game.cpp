@@ -42,7 +42,7 @@ game_t* game_init( void ) {
     sprite_set_pos( game->background, 0, 0 );
 
     sprite_t* player_sprite = sprite_init( "assets/sprites/Guide_idle_clean.png", game->renderer, 0, 0, 48, 82 );
-    game->player = (player_t*)entity_init( player_sprite, vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y), PLAYER_MASS, PLAYER_BASE_SPEED );
+    game->player = (player_t*)entity_init( player_sprite, vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y), PLAYER_MASS, PLAYER_BASE_SPEED, PLAYER_MAX_SPEED );
     if ( game->player == NULL ) {
         perror("Failed to create player");
         game_quit( game );
@@ -128,7 +128,7 @@ void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
             printf("frame time        : %lf ms\n", game->frame_time);
             printf("player world pos  : "); vector2_print( player_pos );           printf("\n");
             printf("camera center pos : "); vector2_print( camera_pos );           printf("\n");
-            printf("mouse screen pos  : %d %d\n", mouse_screen_x, mouse_screen_y);
+            printf("mouse screen pos  : (%d, %d)\n", mouse_screen_x, mouse_screen_y);
             printf("mouse world pos   : "); vector2_print( mouse_world_pos );      printf("\n");
 
             puts("");
@@ -155,7 +155,7 @@ void game_handle_events( game_t* game ) {
 void game_update( game_t* game ) {
     const Uint8* keystate = SDL_GetKeyboardState( NULL );
 
-    player_update( game->player, keystate );
+    player_update( game->player, keystate, game->world );
 
     camera_update( game->camera, entity_output_pos( game->player ), keystate );
 }

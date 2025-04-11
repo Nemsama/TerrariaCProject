@@ -84,6 +84,12 @@ void sprite_set_pos( sprite_t* sprite, int x, int y ) {
     sprite->dest_rect.x = x;
     sprite->dest_rect.y = y;
 }
+void sprite_get_pos( sprite_t* sprite, int* x, int* y ) {
+    if ( sprite == NULL ) return;
+
+    if ( x ) *x = sprite->dest_rect.x;
+    if ( y ) *y = sprite->dest_rect.y;
+}
 
 void sprite_set_scale( sprite_t* sprite, int width, int height ) {
     if ( sprite == NULL ) return;
@@ -96,6 +102,12 @@ void sprite_scale(  sprite_t* sprite, float scale_x, float scale_y ) {
 
     sprite->dest_rect.w *= scale_x;
     sprite->dest_rect.h *= scale_y;
+}
+void sprite_get_scale( sprite_t* sprite, int* width, int* height ) {
+    if ( sprite == NULL ) return;
+
+    if ( width ) *width = sprite->dest_rect.w;
+    if ( height ) *height = sprite->dest_rect.h;
 }
 
 void sprite_set_texture( sprite_t* sprite, SDL_Texture* texture ) {

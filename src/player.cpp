@@ -20,11 +20,12 @@ void player_handle_controls( player_t* player, const Uint8* keystate ) {
     entity_add_force( player, vector2_new( player_movement_x, player_movement_y ) );
 }
 
-void player_update(player_t* player, const Uint8* keystate) {
+void player_update( player_t* player, const Uint8* keystate, world_t* world ) {
     if ( !player ) return;
 
     player_handle_controls( player, keystate );
 
     entity_apply_force( player );
-    prevent_world_exit( &player->world_rect );
+    // prevent_world_exit( &player->world_rect );
+    entity_apply_collisions( player, world );
 }
