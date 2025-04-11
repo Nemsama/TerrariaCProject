@@ -42,7 +42,12 @@ game_t* game_init( void ) {
     sprite_set_pos( game->background, 0, 0 );
 
     sprite_t* player_sprite = sprite_init( "assets/sprites/Guide_idle_clean.png", game->renderer, 0, 0, 48, 82 );
-    game->player = (player_t*)entity_init( player_sprite, vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y), PLAYER_MASS, PLAYER_BASE_SPEED, PLAYER_MAX_SPEED );
+    game->player = (player_t*)entity_init( player_sprite, 
+                                          vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y),
+                                          PLAYER_MASS,
+                                          PLAYER_ACCELERATION,
+                                          PLAYER_MAX_SPEED,
+                                          PLAYER_JUMP_SPEED );
     if ( game->player == NULL ) {
         perror("Failed to create player");
         game_quit( game );
@@ -187,6 +192,9 @@ void game_delay( game_t* game ) {
     else {
         printf("Frame time exceeded : %lf ms", game->frame_time); puts("");
     }
+
+    // printf("press enter to go to next frame\n");
+    // scanf("%*c");
 
     game->current_time = clock();
 }

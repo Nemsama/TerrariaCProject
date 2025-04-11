@@ -1,5 +1,15 @@
 #include <utils.h>
 
+float sign( float x ) {
+    if ( x > 0 ) return 1.0f;
+    if ( x < 0 ) return -1.0f;
+    return 0.0f;
+}
+
+float running_force( float speed, float acceleration, float max_speed ) {
+    return acceleration * ( max_speed - speed );
+}
+
 bool prevent_exit( rect_t* rect, rect_t* boundaries ) {
     if ( !rect || !boundaries ) return false;
     bool moved = false;

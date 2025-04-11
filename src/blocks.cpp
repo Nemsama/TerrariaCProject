@@ -73,10 +73,12 @@ world_t* world_init( /* world parameters */ ) {
     world_set_blocks( world, 0, WORLD_WIDTH, (WORLD_HEIGHT/2)+8, (WORLD_HEIGHT/2)-8, STONE );
 
     // lil stone
-    world_set_blocks( world, WORLD_WIDTH/2+5, 1, WORLD_HEIGHT/2  , 1, DIRT  );
-    world_set_blocks( world, WORLD_WIDTH/2+5, 1, WORLD_HEIGHT/2-1, 1, STONE );
+    world_set_blocks( world, WORLD_WIDTH/2+4, 3, WORLD_HEIGHT/2  , 1, DIRT  );
+    world_set_blocks( world, WORLD_WIDTH/2+4, 3, WORLD_HEIGHT/2-1, 1, STONE );
+    world_set_blocks( world, WORLD_WIDTH/2+4, 2, WORLD_HEIGHT/2-2, 1, STONE );
 
-    world_set_blocks( world, WORLD_WIDTH/2-6, 3, WORLD_HEIGHT/2-8, 2, STONE );
+    world_set_blocks( world, WORLD_WIDTH/2-6, 2, WORLD_HEIGHT/2-8, 1, STONE );
+    world_set_blocks( world, WORLD_WIDTH/2-6, 3, WORLD_HEIGHT/2-7, 1, STONE );
 
     return world;
 }
