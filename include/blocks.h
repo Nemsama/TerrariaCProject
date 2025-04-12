@@ -4,7 +4,6 @@
 #include <common.h>
 #include <camera.h>
 #include <sprite.h>
-#include <vector.h>
 
 #define BLOCK_TYPES_COUNT 5
 typedef enum {
@@ -33,21 +32,9 @@ typedef struct block {
 
 extern block_t* blocks_types[]; // block struct for each block type
 
-typedef block_type_t world_t[WORLD_WIDTH][WORLD_HEIGHT];
-
 bool init_blocks_types( SDL_Renderer* renderer );
 void destroy_blocks_types( void );
 
-world_t* world_init( /* world parameters */ );
-void world_destroy( world_t* world );
-
-block_type_t world_output_block( world_t* world, int x, int y );
-void world_set_block( world_t* world, int x, int y, block_type_t type );
-void world_set_blocks( world_t* world, int x, int width, int y, int height, block_type_t type );
-
-void world_render( world_t* world, camera_t* camera, SDL_Renderer* renderer );
 void block_render( block_t* block, camera_t* camera, SDL_Renderer* renderer );
-
-void world_get_collisions( world_t* world, int left, int top, int right, int bottom, vector2_t* displacement );
 
 #endif

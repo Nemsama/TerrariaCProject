@@ -4,12 +4,11 @@
 #include <common.h>
 #include <utils.h>
 #include <rect.h>
-#include <vector.h>
 
 #include <camera.h>
 #include <sprite.h>
 #include <player.h>
-#include <blocks.h>
+#include <world.h>
 
 typedef struct game {
     SDL_Window* window;

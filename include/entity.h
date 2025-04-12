@@ -6,8 +6,7 @@
 #include <camera.h>
 #include <rect.h>
 #include <utils.h>
-#include <vector.h>
-#include <blocks.h>
+#include <world.h>
 
 typedef struct entity {
     sprite_t* sprite;

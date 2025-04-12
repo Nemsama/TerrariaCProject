@@ -62,7 +62,10 @@ game_t* game_init( void ) {
     }
     camera_set_pos_center( game->camera, vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y) );
 
-    game->world = world_init();
+    world_flags_t world_flags;
+    set_default_world_flags( &world_flags );
+    world_flags.special_seed = FLAT;
+    game->world = create_world( &world_flags );
     if ( game->world == NULL ) {
         perror("Failed to create world");
         game_quit( game );

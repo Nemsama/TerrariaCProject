@@ -108,5 +108,5 @@ void camera_update( camera_t* camera, vector2_t target_position, const Uint8* ke
         camera_set_pos_center( camera, target_position );
     }
 
-    prevent_world_exit( &camera->world_rect );
+    // prevent_world_exit( &camera->world_rect );
 }
