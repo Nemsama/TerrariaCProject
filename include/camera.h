@@ -4,9 +4,13 @@
 #include <common.h>
 #include <rect.h>
 
+#define CAMERA_BASE_WIDTH  (float)WINDOW_WIDTH  / PIXELS_PER_BLOCK
+#define CAMERA_BASE_HEIGHT (float)WINDOW_HEIGHT / PIXELS_PER_BLOCK
+
 typedef struct camera {
     rect_t world_rect; // world position
     float scale;
+    int pixels_per_block;
     float speed;
 } camera_t;
 
@@ -24,12 +28,15 @@ bool camera_is_seeing( camera_t* camera, rect_t* rect );
 
 void camera_set_pos( camera_t* camera, vector2_t position );
 void camera_set_pos_center( camera_t* camera, vector2_t position );
-// void camera_set_scale( camera_t* camera, float scale );
+void camera_set_scale( camera_t* camera, float scale );
 
 void camera_get_pos( camera_t* camera, vector2_t* position );
 void camera_get_pos_center( camera_t* camera, vector2_t* position );
 void camera_get_shape( camera_t* camera, vector2_t* shape );
-// void camera_get_scale( camera_t* camera, float *scale );
+void camera_get_scale( camera_t* camera, float *scale );
+void camera_add_scale( camera_t* camera, float scale );
+
+void camera_scale_sprite( camera_t* camera, SDL_Rect* sprite_dest_rect, SDL_Rect* sprite_src_rect );
 
 void camera_update( camera_t* camera, vector2_t target_position, const Uint8* keystate );
 

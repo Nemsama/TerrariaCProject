@@ -44,5 +44,5 @@ void block_render( block_t* block, camera_t* camera, SDL_Renderer* renderer ) {
 
     // printf("block %d %d %d %d\n", block->x, block->y, block->sprite->dest_rect.x, block->sprite->dest_rect.y);
 
-    sprite_render( block->sprite, renderer );
+    sprite_render( block->sprite, camera, renderer );
 }

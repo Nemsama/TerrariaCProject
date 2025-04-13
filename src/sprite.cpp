@@ -143,7 +143,11 @@ void sprite_set_texture_path( sprite_t* sprite, const char* texture_path, SDL_Re
     sprite_set_texture( sprite, new_texture );
 }
 
-void sprite_render( sprite_t* sprite, SDL_Renderer* renderer ) {
+void sprite_render( sprite_t* sprite, camera_t* camera, SDL_Renderer* renderer ) {
+    if ( sprite == NULL || renderer == NULL ) return;
+    // set the right scale for the sprite
+    camera_scale_sprite( camera, &sprite->dest_rect, &sprite->src_rect );
+
     // Render the sprite to the screen
     SDL_RenderCopy( renderer, sprite->texture, &sprite->src_rect, &sprite->dest_rect );
 }

@@ -17,7 +17,7 @@
 #define FPS 60
 #define FRAME_TIME (1000.0f / FPS)
 #define CAMERA_SCALE 1.0f
-#define CAMERA_SPEED 1.0f
+#define CAMERA_SPEED 0.5f
 
 #define PLAYER_ACCELERATION 0.05f // blocks per frame^2
 #define PLAYER_MAX_SPEED 20.0f // blocks per second

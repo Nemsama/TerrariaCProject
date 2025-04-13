@@ -8,6 +8,14 @@ void flip_terrain( int* output, int* input, int size ) {
     }
 }
 
+void convert_terrain_to_world_height( int* world_height, int size, int surface_height ) {
+    if ( world_height == NULL ) return;
+
+    for ( int i = 0; i < size; i++ ) {
+        world_height[i] = surface_height - world_height[i];
+    }
+}
+
 void random_terrain( int* terrain, int size, int starting_height, float up_proba, float down_proba, int min_level_width, int max_jump_height, float jump_proba ) {
     int i = 0;
     int level_width = 1;
@@ -74,8 +82,8 @@ void rough_plain( int* terrain, int size, int starting_height ) {
     float      up_proba = 0.18f;
     float    down_proba = 0.18f;
     int min_level_width = 1;
-    int max_jump_height = 2;
-    float    jump_proba = 0.8f;
+    int max_jump_height = 3;
+    float    jump_proba = 0.23f;
 
     random_terrain( terrain, size, starting_height, up_proba, down_proba, min_level_width, max_jump_height, jump_proba );
 }
@@ -316,11 +324,11 @@ void generate_world_height( int* world_height, int size, int starting_height, in
     if ( world_height == NULL ) return;
 
     // default parameters
-    float mountain_proba = 0.1f;
+    float mountain_proba = 0.05f;
     float slope_proba = 0.2f;
-    float sharp_slope_proba = 0.1f;
-    float rough_plain_proba = 0.3f;
-    // float plain_proba = 0.3f; // plain is generated when nothing else is generated
+    float sharp_slope_proba = 0.08f;
+    float rough_plain_proba = 0.32f;
+    // float plain_proba = 0.35f; // plain is generated when nothing else is generated
 
     int i = 0;
     int segment_size = 0;

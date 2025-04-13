@@ -75,7 +75,7 @@ void entity_render( entity_t* entity, camera_t* camera, SDL_Renderer* renderer )
     camera_worldtoscreen_pos( camera, entity_output_pos( entity ), &entity_screen_x, &entity_screen_y );
     sprite_set_pos( entity->sprite, entity_screen_x, entity_screen_y );
 
-    sprite_render( entity->sprite, renderer );
+    sprite_render( entity->sprite, camera, renderer );
 }
 
 void entity_add_force( entity_t* entity, vector2_t force ) {

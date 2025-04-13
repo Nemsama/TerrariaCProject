@@ -81,10 +81,12 @@ void create_world_base( world_t* world, world_flags_t* world_flags ) {
     int    left_side[WORLD_WIDTH/2];
     int world_height[WORLD_WIDTH];
 
-    generate_world_height( world_height + WORLD_WIDTH/2, WORLD_WIDTH/2, SURFACE_HEIGHT, SURFACE_UP_LIMIT, SURFACE_DOWN_LIMIT );
-    generate_world_height( left_side                   , WORLD_WIDTH/2, SURFACE_HEIGHT, SURFACE_UP_LIMIT, SURFACE_DOWN_LIMIT );
+    generate_world_height( world_height + WORLD_WIDTH/2, WORLD_WIDTH/2, 0, SURFACE_UP_LIMIT, SURFACE_DOWN_LIMIT );
+    generate_world_height( left_side                   , WORLD_WIDTH/2, 0, SURFACE_UP_LIMIT, SURFACE_DOWN_LIMIT );
     flip_terrain( world_height, left_side, WORLD_WIDTH/2 );
-    world_height[WORLD_WIDTH/2] = SURFACE_HEIGHT;
+    world_height[WORLD_WIDTH/2] = 0;
+
+    convert_terrain_to_world_height( world_height, WORLD_WIDTH, SURFACE_HEIGHT );
 
     // generate blocks
     for ( int x = 0; x < WORLD_WIDTH; x++ ) {

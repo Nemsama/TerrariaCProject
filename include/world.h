@@ -10,8 +10,8 @@
 #define WORLD_WIDTH 6400
 #define WORLD_HEIGHT 1800
 #define SURFACE_HEIGHT 390
-#define SURFACE_UP_LIMIT 340
-#define SURFACE_DOWN_LIMIT 400
+#define SURFACE_UP_LIMIT 50    // how many blocks above(relative) SURFACE_HEIGHT the actual surface can be
+#define SURFACE_DOWN_LIMIT -10 // how many blocks below(relative) SURFACE_HEIGHT the actual surface can be
 #define SURFACE_TO_UNDERGROUND_HEIGHT 440
 #define UNDERGROUND_TO_CAVERN_HEIGHT 640
 #define CAVERN_TO_UNDERWORLD_HEIGHT 1590

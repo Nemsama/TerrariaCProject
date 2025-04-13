@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 
 void flip_terrain( int* output, int* input, int size );
+void convert_terrain_to_world_height( int* world_height, int size, int surface_height );
 
 void plain( int* terrain, int size, int starting_height );
 void rough_plain( int* terrain, int size, int starting_height );

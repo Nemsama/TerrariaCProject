@@ -145,18 +145,29 @@ void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
             break;
     }
 }
+void handle_one_event( game_t* game, SDL_Event* event ) {
+    switch ( event->type ) {
+        case SDL_QUIT:
+            game->running = false;
+            break;
+        case SDL_KEYDOWN:
+            game_handle_keydown( game, &event->key );
+            break;
+        case SDL_MOUSEWHEEL:
+            if ( event->wheel.y > 0 ) {
+                camera_add_scale( game->camera, -0.05f );
+            }
+            else if ( event->wheel.y < 0 ) {
+                camera_add_scale( game->camera, 0.05f );
+            }
+            break;
+        default:
+            break;
+    }
+}
 void game_handle_events( game_t* game ) {
     while ( SDL_PollEvent( &game->event ) ) {
-        switch ( game->event.type ) {
-            case SDL_QUIT:
-                game->running = false;
-                break;
-            case SDL_KEYDOWN:
-                game_handle_keydown( game, &game->event.key );
-                break;
-            default:
-                break;
-        }
+        handle_one_event( game, &game->event );
     }
 }
 
@@ -174,7 +185,7 @@ void game_render( game_t* game ) {
     SDL_RenderClear( game->renderer );
 
     // Render the background
-    sprite_render( game->background, game->renderer );
+    sprite_render( game->background, game->camera, game->renderer );
 
     // Render blocks
     world_render( game->world, game->camera, game->renderer );
