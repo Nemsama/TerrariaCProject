@@ -74,6 +74,28 @@ void generate_flat_structures( world_t* world ) {
     world_set_blocks( world, WORLD_SPAWN_X-6, WORLD_SPAWN_X-4, SURFACE_HEIGHT-7, SURFACE_HEIGHT-7, STONE );
 }
 
+void create_world_base( world_t* world, world_flags_t* world_flags ) {
+    if ( world == NULL || world_flags == NULL ) return;
+
+    // generate world height
+    int    left_side[WORLD_WIDTH/2];
+    int world_height[WORLD_WIDTH];
+
+    generate_world_height( world_height + WORLD_WIDTH/2, WORLD_WIDTH/2, SURFACE_HEIGHT, SURFACE_UP_LIMIT, SURFACE_DOWN_LIMIT );
+    generate_world_height( left_side                   , WORLD_WIDTH/2, SURFACE_HEIGHT, SURFACE_UP_LIMIT, SURFACE_DOWN_LIMIT );
+    flip_terrain( world_height, left_side, WORLD_WIDTH/2 );
+    world_height[WORLD_WIDTH/2] = SURFACE_HEIGHT;
+
+    // generate blocks
+    for ( int x = 0; x < WORLD_WIDTH; x++ ) {
+        world_set_blocks( world, x, x,                            0,              world_height[x]-1, AIR   );
+        world_set_block ( world,    x,                                            world_height[x]  , GRASS );
+        world_set_blocks( world, x, x,            world_height[x]+1, UNDERGROUND_TO_CAVERN_HEIGHT-1, DIRT  );
+        world_set_blocks( world, x, x, UNDERGROUND_TO_CAVERN_HEIGHT,  CAVERN_TO_UNDERWORLD_HEIGHT-1, STONE );
+        world_set_blocks( world, x, x,  CAVERN_TO_UNDERWORLD_HEIGHT,                 WORLD_HEIGHT-1, AIR   );
+    }
+}
+
 // space        height = 60
 // surface      height = 380
 // underground  height = 200
@@ -96,8 +118,17 @@ void set_default_world_flags( world_flags_t* world_flags ) {
 void world_generate_base( world_t* world, world_flags_t* world_flags ) {
     if ( world == NULL || world_flags == NULL ) return;
 
-    if ( world_flags->special_seed == FLAT ) {
-        return create_flat_base( world );
+    switch ( world_flags->special_seed ) {
+        case NONE:
+            srand( world_flags->seed );
+            create_world_base( world, world_flags );
+            break;
+        case FLAT:
+            create_flat_base( world );
+            break;
+        default:
+            perror("Unknown special seed");
+            break;
     }
 }
 void paint_world( world_t* world, world_flags_t* world_flags ) {
@@ -107,19 +138,14 @@ void paint_world( world_t* world, world_flags_t* world_flags ) {
         return;
     }
 }
-void world_generate_caverns( world_t* world, world_flags_t* world_flags ) {
+void world_generate_caves( world_t* world, world_flags_t* world_flags ) {
     if ( world == NULL || world_flags == NULL ) return;
-
-    if ( world_flags->special_seed == FLAT ) {
-        return;
-    }
+    
 }
 void world_generate_biomes( world_t* world, world_flags_t* world_flags ) {
     if ( world == NULL || world_flags == NULL ) return;
 
-    if ( world_flags->special_seed == FLAT ) {
-        return;
-    }
+    
 }
 void world_generate_structures( world_t* world, world_flags_t* world_flags ) {
     if ( world == NULL || world_flags == NULL ) return;
@@ -136,11 +162,15 @@ world_t* create_world( world_flags_t* world_flags ) {
         return NULL;
     }
 
+    if ( world_flags->special_seed == NONE ) {
+        srand( world_flags->seed );
+    }
+
     world_generate_base( world, world_flags );
 
     paint_world( world, world_flags );
 
-    world_generate_caverns( world, world_flags );
+    world_generate_caves( world, world_flags );
 
     world_generate_biomes( world, world_flags );
 
