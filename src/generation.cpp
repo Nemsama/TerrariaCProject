@@ -1,5 +1,7 @@
 #include <generation.h>
 
+// surface height generation
+
 void flip_terrain( int* output, int* input, int size ) {
     if ( output == NULL || input == NULL ) return;
 
@@ -353,3 +355,16 @@ void generate_world_height( int* world_height, int size, int starting_height, in
         starting_height = world_height[i-1];
     }
 }
+
+
+
+
+
+
+
+
+
+
+// painting world with perlin noise
+
+

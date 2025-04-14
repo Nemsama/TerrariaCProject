@@ -22,7 +22,7 @@
 #define PLAYER_ACCELERATION 0.05f // blocks per frame^2
 #define PLAYER_MAX_SPEED 20.0f // blocks per second
 #define PLAYER_MASS 10.0f
-#define PLAYER_JUMP_SPEED 30.0f // blocks per second
+#define PLAYER_JUMP_SPEED 60.0f // blocks per second
 
 #define GRAVITY 0.02f 
 

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <blocks.h>
 #include <generation.h>
+#include <perlin.h>
 
 #define WORLD_WIDTH 6400
 #define WORLD_HEIGHT 1800
@@ -18,6 +19,19 @@
 
 #define WORLD_SPAWN_X WORLD_WIDTH / 2.0f
 #define WORLD_SPAWN_Y SURFACE_HEIGHT - 3.0f
+
+
+#define       NOISE_DEPTH     5
+#define       NOISE_FREQUENCY 0.16f
+
+#define     SURFACE_THRESHOLD 0.71f
+#define UNDERGROUND_THRESHOLD 0.62f
+#define      CAVERN_THRESHOLD 0.38f
+
+typedef enum {
+    BOX_BLUR,
+    GAUSSIAN_BLUR
+} filter_type_t;
 
 #define MAX_WORLD_NAME_LENGTH 256
 

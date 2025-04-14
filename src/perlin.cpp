@@ -83,7 +83,7 @@ float blurred_noise2d(float x, float y, float freq, int depth, int seed, float o
         {offset, offset},
     };
 
-    for (int i = 0; i < (int)(sizeof(offsets) / sizeof(offsets[0])); i++) {
+    for (int i = 0; i < (int)( sizeof(offsets) / sizeof(offsets[0]) ); i++) {
         float dx = offsets[i][0];
         float dy = offsets[i][1];
         total += perlin2d(x + dx, y + dy, freq, depth, seed);
@@ -93,25 +93,13 @@ float blurred_noise2d(float x, float y, float freq, int depth, int seed, float o
     return total / count;
 }
 
-bool get_perlin(float out[WIDTH][HEIGHT], int width, int height, float freq, int depth, int seed)
+bool get_perlin(float out[PERLIN_WIDTH][PERLIN_HEIGHT], int width, int height, float freq, int depth, int seed)
 {
     if (!out) return false;
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             out[x][y] = perlin2d(x, y, freq, depth, seed);
-        }
-    }
-
-    return true;
-}
-bool get_blurred_perlin(float out[WIDTH][HEIGHT], int width, int height, float freq, int depth, float offset, int seed)
-{
-    if (!out) return false;
-
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            out[x][y] = blurred_noise2d(x, y, freq, depth, seed, offset);
         }
     }
 
@@ -130,7 +118,7 @@ float linear_fade(int x, int y, int width, int height, float slope)
     // Return the fade value
     return 1.0 - slope * dist;
 }
-void get_linear_fade( float out[WIDTH][HEIGHT], int width, int height )
+void get_linear_fade( float out[PERLIN_WIDTH][PERLIN_HEIGHT], int width, int height )
 {
     if (!out) return;
 
@@ -152,7 +140,7 @@ float exponential_fade( int x, int y, int width, int height, float amp )
     // Return the fade value
     return 1.0f/expf( amp * dist * dist );
 }
-void get_exponential_fade( float out[WIDTH][HEIGHT], int width, int height, float amp )
+void get_exponential_fade( float out[PERLIN_WIDTH][PERLIN_HEIGHT], int width, int height, float amp )
 {
     if (!out) return;
 
@@ -162,7 +150,7 @@ void get_exponential_fade( float out[WIDTH][HEIGHT], int width, int height, floa
         }
     }
 }
-void apply_linear_fade( float out[WIDTH][HEIGHT], int width, int height )
+void apply_linear_fade( float out[PERLIN_WIDTH][PERLIN_HEIGHT], int width, int height )
 {
     if (!out) return;
 
@@ -172,7 +160,7 @@ void apply_linear_fade( float out[WIDTH][HEIGHT], int width, int height )
         }
     }
 }
-void apply_exponential_fade( float out[WIDTH][HEIGHT], int width, int height, float amp )
+void apply_exponential_fade( float out[PERLIN_WIDTH][PERLIN_HEIGHT], int width, int height, float amp )
 {
     if (!out) return;
 
@@ -183,7 +171,7 @@ void apply_exponential_fade( float out[WIDTH][HEIGHT], int width, int height, fl
     }
 }
 
-void apply_threshold(float out[WIDTH][HEIGHT], int width, int height, float threshold)
+void apply_threshold(float out[PERLIN_WIDTH][PERLIN_HEIGHT], int width, int height, float threshold)
 {
     if (!out) return;
 
@@ -194,7 +182,7 @@ void apply_threshold(float out[WIDTH][HEIGHT], int width, int height, float thre
     }
 }
 
-bool get_binary_perlin(float out[WIDTH][HEIGHT], int width, int height, float freq, int depth, int seed, float threshold)
+bool get_binary_perlin(float out[PERLIN_WIDTH][PERLIN_HEIGHT], int width, int height, float freq, int depth, int seed, float threshold)
 {
     if (!out) return false;
 

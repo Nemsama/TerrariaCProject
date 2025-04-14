@@ -98,6 +98,174 @@ void create_world_base( world_t* world, world_flags_t* world_flags ) {
     }
 }
 
+void paint_surface_perlin( Uint8 ** world_mask, world_flags_t* world_flags ) {
+    if ( world_flags == NULL ) return;
+
+    float noise;
+
+    for ( int x = 0; x < WORLD_WIDTH; x++ ) {
+        for ( int y = 0; y < SURFACE_TO_UNDERGROUND_HEIGHT; y++ ) {
+
+            noise = perlin2d( x, y, NOISE_FREQUENCY, NOISE_DEPTH, world_flags->seed );
+            if ( noise > SURFACE_THRESHOLD ) {
+                world_mask[x][y] = 1;
+            }
+            else {
+                world_mask[x][y] = 0;
+            }
+        }
+    }
+}
+void paint_underground_perlin( Uint8 ** world_mask, world_flags_t* world_flags ) {
+    if ( world_flags == NULL ) return;
+
+    float noise;
+
+    for ( int x = 0; x < WORLD_WIDTH; x++ ) {
+        for ( int y = SURFACE_TO_UNDERGROUND_HEIGHT; y < UNDERGROUND_TO_CAVERN_HEIGHT; y++ ) {
+
+            noise = perlin2d( x, y, NOISE_FREQUENCY, NOISE_DEPTH, world_flags->seed );
+            if ( noise > UNDERGROUND_THRESHOLD ) {
+                world_mask[x][y] = 1;
+            }
+            else {
+                world_mask[x][y] = 0;
+            }
+        }
+    }
+}
+void paint_cavern_perlin( Uint8 ** world_mask, world_flags_t* world_flags ) {
+    if ( world_flags == NULL ) return;
+
+    float noise;
+
+    for ( int x = 0; x < WORLD_WIDTH; x++ ) {
+        for ( int y = UNDERGROUND_TO_CAVERN_HEIGHT; y < CAVERN_TO_UNDERWORLD_HEIGHT; y++ ) {
+
+            noise = perlin2d( x, y, NOISE_FREQUENCY, NOISE_DEPTH, world_flags->seed );
+            if ( noise > CAVERN_THRESHOLD ) {
+                world_mask[x][y] = 1;
+            }
+            else {
+                world_mask[x][y] = 0;
+            }
+        }
+    }
+}
+
+void smooth_transition( Uint8 ** world_mask, world_flags_t* world_flags, int transition_height, int offset, float start_threshold, float end_threshold ) {
+    if ( world_flags == NULL ) return;
+
+    float threshold = start_threshold;
+    float threshold_step = (end_threshold - start_threshold) / ( 2.0f * offset );
+
+    float noise;
+
+    for ( int y = transition_height - offset; y < transition_height + offset; y++ ) {
+        for ( int x = 0; x < WORLD_WIDTH; x++) {
+            noise = perlin2d( x, y, NOISE_FREQUENCY, NOISE_DEPTH, world_flags->seed );
+
+            if ( noise > threshold ) {
+                world_mask[x][y] = 1;
+            }
+            else {
+                world_mask[x][y] = 0;
+            }
+        }
+    
+        threshold += threshold_step;
+    }
+}
+
+float get_mask_value( Uint8 ** world_mask, int x, int y ) {
+    if ( x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT ) return 0.5f;
+
+    return (float)world_mask[x][y];
+}
+float get_box_filter_value( Uint8 ** world_mask, int x, int y ) {
+    float sum = 0;
+
+    for ( int i = x-1; i <= x+1; i++ ) {
+        for ( int j = y-1; j <= y+1; j++ ) {
+            sum += get_mask_value( world_mask, i, j );
+        }
+    }
+
+    return sum/9;
+}
+float gaussian_weight( int x, int y, int i, int j ) {
+    if ( i == x && j == y ) return 4.0f;
+    else if ( fabs( i-x ) + fabs( j-y ) == 1 ) return 2.0f;
+    else return 1.0f;
+}
+float get_gaussian_filter_value( Uint8 ** world_mask, int x, int y ) {
+    float sum = 0;
+    float weight_sum = 0;
+
+    for ( int i = x-1; i <= x+1; i++ ) {
+        for ( int j = y-1; j <= y+1; j++ ) {
+            float weight = gaussian_weight( x, y, i, j );
+            sum += get_mask_value( world_mask, i, j ) * weight;
+            weight_sum += weight;
+        }
+    }
+
+    return sum/weight_sum;
+}
+void filter_mask_and_paint_world( world_t* world, Uint8 ** world_mask, filter_type_t filter_type ) {
+    if ( world == NULL ) return;
+    float filter_value;
+
+    for ( int i = 0; i < WORLD_WIDTH; i++ ) {
+        for ( int j = 0; j < WORLD_HEIGHT; j++ ) {
+            if ( AIR == world_output_block( world, i, j ) ) continue;
+
+            switch ( filter_type ) {
+                case BOX_BLUR:
+                    filter_value = get_box_filter_value( world_mask, i, j );
+                    break;
+                case GAUSSIAN_BLUR:
+                    filter_value = get_gaussian_filter_value( world_mask, i, j );
+                    break;
+                default:
+                    perror("Unknown filter type");
+                    return;
+                    break;
+            }
+
+            if ( filter_value >= 0.5f ) {
+                world_set_block( world, i, j, STONE );
+            }
+            else {
+                if ( GRASS == world_output_block( world, i, j ) ) continue;
+                else world_set_block( world, i, j, DIRT );
+            }
+        }
+    }
+}
+void paint_world_perlin( world_t* world, world_flags_t* world_flags ) {
+    if ( world == NULL || world_flags == NULL ) return;
+
+    Uint8 ** world_mask = (Uint8**)calloc( WORLD_WIDTH, sizeof(Uint8*) );
+    for ( int i = 0; i < WORLD_WIDTH; i++ ) {
+        world_mask[i] = (Uint8*)calloc( WORLD_HEIGHT, sizeof(Uint8) );
+    }
+
+    printf("    Painting surface stone...\n");
+    paint_surface_perlin( world_mask, world_flags );
+    printf("    Painting underground stone...\n");
+    paint_underground_perlin( world_mask, world_flags );
+    printf("    Painting cavern dirt...\n");
+    paint_cavern_perlin( world_mask, world_flags );
+
+    printf("    Smoothing transitions...\n");
+    smooth_transition( world_mask, world_flags, SURFACE_TO_UNDERGROUND_HEIGHT, 4,     SURFACE_THRESHOLD, UNDERGROUND_THRESHOLD );
+    smooth_transition( world_mask, world_flags,  UNDERGROUND_TO_CAVERN_HEIGHT, 6, UNDERGROUND_THRESHOLD,      CAVERN_THRESHOLD );
+
+    printf("    Blurring lonely rocks...\n");
+    filter_mask_and_paint_world( world, world_mask, GAUSSIAN_BLUR );
+}
+
 // space        height = 60
 // surface      height = 380
 // underground  height = 200
@@ -122,7 +290,6 @@ void world_generate_base( world_t* world, world_flags_t* world_flags ) {
 
     switch ( world_flags->special_seed ) {
         case NONE:
-            srand( world_flags->seed );
             create_world_base( world, world_flags );
             break;
         case FLAT:
@@ -136,8 +303,15 @@ void world_generate_base( world_t* world, world_flags_t* world_flags ) {
 void paint_world( world_t* world, world_flags_t* world_flags ) {
     if ( world == NULL || world_flags == NULL ) return;
 
-    if ( world_flags->special_seed == FLAT ) {
-        return;
+    switch ( world_flags->special_seed ) {
+        case NONE:
+            paint_world_perlin( world, world_flags );
+            break;
+        case FLAT:
+            // nothing to do
+            break;
+        default:
+            break;
     }
 }
 void world_generate_caves( world_t* world, world_flags_t* world_flags ) {
@@ -168,14 +342,19 @@ world_t* create_world( world_flags_t* world_flags ) {
         srand( world_flags->seed );
     }
 
+    printf("Drawing surface line...\n");
     world_generate_base( world, world_flags );
 
+    printf("Painting world...\n");
     paint_world( world, world_flags );
 
+    printf("Digging holes...\n");
     world_generate_caves( world, world_flags );
 
+    printf("Adding variety...\n");
     world_generate_biomes( world, world_flags );
 
+    printf("Giving you things to loot...\n");
     world_generate_structures( world, world_flags );
 
     return world;
