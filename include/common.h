@@ -12,7 +12,7 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 #define PIXELS_PER_BLOCK 32
-#define BLOCK_SIZE PIXELS_PER_BLOCK
+#define BLOCK_TEXTURE_SIZE 32
 #define WINDOW_TITLE "Nem's Terraria"
 #define FPS 60
 #define FRAME_TIME (1000.0f / FPS)
@@ -22,7 +22,7 @@
 #define PLAYER_ACCELERATION 0.05f // blocks per frame^2
 #define PLAYER_MAX_SPEED 20.0f // blocks per second
 #define PLAYER_MASS 10.0f
-#define PLAYER_JUMP_SPEED 60.0f // blocks per second
+#define PLAYER_JUMP_SPEED 30.0f // blocks per second
 
 #define GRAVITY 0.02f 
 

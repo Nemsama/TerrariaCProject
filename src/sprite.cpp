@@ -144,10 +144,24 @@ void sprite_set_texture_path( sprite_t* sprite, const char* texture_path, SDL_Re
 }
 
 void sprite_render( sprite_t* sprite, camera_t* camera, SDL_Renderer* renderer ) {
-    if ( sprite == NULL || renderer == NULL ) return;
+    if ( sprite == NULL || camera == NULL || renderer == NULL ) return;
     // set the right scale for the sprite
     camera_scale_sprite( camera, &sprite->dest_rect, &sprite->src_rect );
 
     // Render the sprite to the screen
     SDL_RenderCopy( renderer, sprite->texture, &sprite->src_rect, &sprite->dest_rect );
+}
+
+void sprite_render_background( sprite_t* background, camera_t* camera, SDL_Renderer* renderer ) {
+    if ( background == NULL || camera == NULL || renderer == NULL ) return;
+    
+    // set the right scale for the background
+    SDL_Rect window_rect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+    camera_scale_sprite( camera, &background->dest_rect, &window_rect );
+
+    // center the background
+    camera_center_sprite( camera, &background->dest_rect );
+
+    // Render the background to the screen
+    SDL_RenderCopy( renderer, background->texture, &background->src_rect, &background->dest_rect );
 }

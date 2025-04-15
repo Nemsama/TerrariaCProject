@@ -33,6 +33,7 @@ game_t* game_init( void ) {
     }
 
     game->background = sprite_init( "assets/background/Blue_sky.png", game->renderer, 0, 0, 2048, 1024 );
+    
     if ( game->background == NULL ) {
         perror("Failed to create background sprite");
         game_quit( game );
@@ -185,7 +186,7 @@ void game_render( game_t* game ) {
     SDL_RenderClear( game->renderer );
 
     // Render the background
-    sprite_render( game->background, game->camera, game->renderer );
+    sprite_render_background( game->background, game->camera, game->renderer );
 
     // Render blocks
     world_render( game->world, game->camera, game->renderer );

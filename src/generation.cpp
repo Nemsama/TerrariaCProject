@@ -129,7 +129,7 @@ void sharp_up_slope( int* terrain, int size, int starting_height ) {
     float    down_proba = 0.0f;
     int min_level_width = 1;
     int max_jump_height = 5;
-    float    jump_proba = 0.4f;
+    float    jump_proba = 0.35f;
 
     random_terrain( terrain, size, starting_height, up_proba, down_proba, min_level_width, max_jump_height, jump_proba );
 }
@@ -139,7 +139,7 @@ void sharp_down_slope( int* terrain, int size, int starting_height ) {
     float    down_proba = 0.8f;
     int min_level_width = 1;
     int max_jump_height = 5;
-    float    jump_proba = 0.4f;
+    float    jump_proba = 0.35f;
 
     random_terrain( terrain, size, starting_height, up_proba, down_proba, min_level_width, max_jump_height, jump_proba );
 }
@@ -196,17 +196,17 @@ void small_mountain( int* terrain, int size, int starting_height ) {
     // default parameters
     float mountain_height = 30.0f;
     float noise_proba = 0.3f;
-    float flatness = 0.1f;
+    float flatness = 0.03f;
     int left_offset = 2;
     int right_offset = -2;
 
     random_mountain( terrain, size, starting_height, mountain_height, noise_proba, flatness, left_offset, right_offset );
 }
-void big_mountain( int* terrain, int size, int starting_height ) {
+void high_mountain( int* terrain, int size, int starting_height ) {
     // default parameters
     float mountain_height = 30.0f;
     float noise_proba = 0.3f;
-    float flatness = 0.1f;
+    float flatness = 0.03f;
     int left_offset = -3;
     int right_offset = -3;
 
@@ -215,8 +215,8 @@ void big_mountain( int* terrain, int size, int starting_height ) {
 void down_mountain( int* terrain, int size, int starting_height ) {
     // default parameters
     float mountain_height = 30.0f;
-    float noise_proba = 0.3f;
-    float flatness = 0.1f;
+    float noise_proba = 0.35f;
+    float flatness = 0.0f;
     int left_offset = 4;
     int right_offset = 2;
 
@@ -225,8 +225,8 @@ void down_mountain( int* terrain, int size, int starting_height ) {
 void up_mountain( int* terrain, int size, int starting_height ) {
     // default parameters
     float mountain_height = 30.0f;
-    float noise_proba = 0.3f;
-    float flatness = 0.1f;
+    float noise_proba = 0.35f;
+    float flatness = 0.0f;
     int left_offset = -2;
     int right_offset = -4;
 
@@ -252,8 +252,8 @@ void generate_segment( int* terrain, int* segment_size, int max_size, int starti
 
     // switch
     if ( random_value < mountain_proba ) {
-        *segment_size = rand()%11 + 50;
-        small_mountain( terrain, *segment_size, starting_height );
+        *segment_size = rand()%11 + 53;
+        high_mountain( terrain, *segment_size, starting_height );
     }
     else if ( random_value < mountain_proba + slope_proba ) {
         *segment_size = rand()%15 + 6;
@@ -265,7 +265,7 @@ void generate_segment( int* terrain, int* segment_size, int max_size, int starti
         }
     }
     else if ( random_value < mountain_proba + slope_proba + sharp_slope_proba ) {
-        *segment_size = rand()%6 + 4;
+        *segment_size = rand()%5 + 4;
         if ( rand()%2 == 0 ) {
             sharp_up_slope( terrain, *segment_size, starting_height );
         }
@@ -326,11 +326,11 @@ void generate_world_height( int* world_height, int size, int starting_height, in
     if ( world_height == NULL ) return;
 
     // default parameters
-    float mountain_proba = 0.05f;
-    float slope_proba = 0.2f;
+    float mountain_proba = 0.03f;
+    float slope_proba = 0.25f;
     float sharp_slope_proba = 0.08f;
     float rough_plain_proba = 0.32f;
-    // float plain_proba = 0.35f; // plain is generated when nothing else is generated
+    // float plain_proba = 0.32f; // plain is generated when nothing else is generated
 
     int i = 0;
     int segment_size = 0;

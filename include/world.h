@@ -22,11 +22,15 @@
 
 
 #define       NOISE_DEPTH     5
-#define       NOISE_FREQUENCY 0.16f
+#define       STONE_FREQUENCY 0.16f
 
 #define     SURFACE_THRESHOLD 0.71f
 #define UNDERGROUND_THRESHOLD 0.62f
 #define      CAVERN_THRESHOLD 0.38f
+
+#define       CAVE_FREQUENCY 0.08f
+#define UPPER_CAVE_THRESHOLD 0.77f
+#define  DEEP_CAVE_THRESHOLD 0.61f
 
 typedef enum {
     BOX_BLUR,

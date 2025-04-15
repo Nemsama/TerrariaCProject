@@ -1,8 +1,8 @@
 #ifndef PERLIN_H
 #define PERLIN_H
 
-#define  WIDTH 100
-#define HEIGHT 100
+#define  WIDTH 200
+#define HEIGHT 200
 
 typedef unsigned char byte;
 

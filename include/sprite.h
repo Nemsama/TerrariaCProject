@@ -24,6 +24,7 @@ void sprite_scale( sprite_t* sprite, float scale_x, float scale_y );
 void sprite_get_scale( sprite_t* sprite, int* width, int* height );
 
 void sprite_render( sprite_t* sprite, camera_t* camera, SDL_Renderer* renderer );
+void sprite_render_background( sprite_t* background, camera_t* camera, SDL_Renderer* renderer );
 
 void sprite_set_texture( sprite_t* sprite, SDL_Texture* texture );
 

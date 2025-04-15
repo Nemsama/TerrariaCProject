@@ -104,6 +104,13 @@ void camera_scale_sprite( camera_t* camera, SDL_Rect* sprite_dest_rect, SDL_Rect
     sprite_dest_rect->h = (int)roundf( sprite_src_rect->h / camera->scale );
 }
 
+void camera_center_sprite( camera_t* camera, SDL_Rect* sprite_dest_rect ) {
+    if ( camera == NULL || sprite_dest_rect == NULL ) return;
+    
+    sprite_dest_rect->x =  WINDOW_WIDTH/2 - sprite_dest_rect->w/2;
+    sprite_dest_rect->y = WINDOW_HEIGHT/2 - sprite_dest_rect->h/2;
+}
+
 void camera_update( camera_t* camera, vector2_t target_position, const Uint8* keystate ) {
     if ( camera == NULL ) return;
 
