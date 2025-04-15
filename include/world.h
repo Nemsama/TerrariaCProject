@@ -6,10 +6,7 @@
 #include <common.h>
 #include <blocks.h>
 #include <generation.h>
-#include <perlin.h>
 
-#define WORLD_WIDTH 6400
-#define WORLD_HEIGHT 1800
 #define SURFACE_HEIGHT 390
 #define SURFACE_UP_LIMIT 50    // how many blocks above(relative) SURFACE_HEIGHT the actual surface can be
 #define SURFACE_DOWN_LIMIT -10 // how many blocks below(relative) SURFACE_HEIGHT the actual surface can be
@@ -21,7 +18,7 @@
 #define WORLD_SPAWN_Y SURFACE_HEIGHT - 3.0f
 
 
-#define       NOISE_DEPTH     5
+#define       NOISE_DEPTH     6
 #define       STONE_FREQUENCY 0.16f
 
 #define     SURFACE_THRESHOLD 0.71f
@@ -48,7 +45,7 @@ typedef enum {
 
 typedef struct world_flags {
     char name[MAX_WORLD_NAME_LENGTH];
-    unsigned int seed;
+    long unsigned int seed;
     special_seed_t special_seed;
     Sint8 size; // 0 = small, 1 = medium, 2 = large
     Sint8 difficulty; // 0 = journey, 1 = classic, 2 = expert, 3 = master

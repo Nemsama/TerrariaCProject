@@ -367,4 +367,151 @@ void generate_world_height( int* world_height, int size, int starting_height, in
 
 // painting world with perlin noise
 
+void paint_with_perlin( Uint8 ** world_mask, float frequency, int depth, float threshold, long unsigned int seed, int start_height, int end_height ) {
+    float noise;
 
+    for ( int x = 0; x < WORLD_WIDTH; x++ ) {
+        for ( int y = start_height; y < end_height; y++ ) {
+
+            noise = perlin2d( x, y, frequency, depth, seed );
+            if ( noise > threshold ) {
+                world_mask[x][y] = 1;
+            }
+            else {
+                world_mask[x][y] = 0;
+            }
+        }
+    }
+}
+
+/*
+void paint_surface_perlin( Uint8 ** world_mask, long unsigned int seed ) {
+    float noise;
+
+    for ( int x = 0; x < WORLD_WIDTH; x++ ) {
+        for ( int y = 0; y < SURFACE_TO_UNDERGROUND_HEIGHT; y++ ) {
+
+            noise = perlin2d( x, y, STONE_FREQUENCY, NOISE_DEPTH, seed );
+            if ( noise > SURFACE_THRESHOLD ) {
+                world_mask[x][y] = 1;
+            }
+            else {
+                world_mask[x][y] = 0;
+            }
+        }
+    }
+}
+void paint_underground_perlin( Uint8 ** world_mask, long unsigned int seed ) {
+    float noise;
+
+    for ( int x = 0; x < WORLD_WIDTH; x++ ) {
+        for ( int y = SURFACE_TO_UNDERGROUND_HEIGHT; y < UNDERGROUND_TO_CAVERN_HEIGHT; y++ ) {
+
+            noise = perlin2d( x, y, STONE_FREQUENCY, NOISE_DEPTH, seed );
+            if ( noise > UNDERGROUND_THRESHOLD ) {
+                world_mask[x][y] = 1;
+            }
+            else {
+                world_mask[x][y] = 0;
+            }
+        }
+    }
+}
+void paint_cavern_perlin( Uint8 ** world_mask, long unsigned int seed ) {
+    float noise;
+
+    for ( int x = 0; x < WORLD_WIDTH; x++ ) {
+        for ( int y = UNDERGROUND_TO_CAVERN_HEIGHT; y < CAVERN_TO_UNDERWORLD_HEIGHT; y++ ) {
+
+            noise = perlin2d( x, y, STONE_FREQUENCY, NOISE_DEPTH, seed );
+            if ( noise > CAVERN_THRESHOLD ) {
+                world_mask[x][y] = 1;
+            }
+            else {
+                world_mask[x][y] = 0;
+            }
+        }
+    }
+}
+*/
+
+void smooth_transition( Uint8 ** world_mask, int transition_height, int offset, float frequency, int depth, float start_threshold, float end_threshold, long unsigned int seed ) {
+    float threshold = start_threshold;
+    float threshold_step = (end_threshold - start_threshold) / ( 2.0f * offset );
+
+    float noise;
+
+    for ( int y = transition_height - offset; y < transition_height + offset; y++ ) {
+        for ( int x = 0; x < WORLD_WIDTH; x++) {
+            noise = perlin2d( x, y, frequency, depth, seed );
+
+            if ( noise > threshold ) {
+                world_mask[x][y] = 1;
+            }
+            else {
+                world_mask[x][y] = 0;
+            }
+        }
+    
+        threshold += threshold_step;
+    }
+}
+
+float get_mask_value( Uint8 ** world_mask, int x, int y ) {
+    if ( x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT ) return 0.5f;
+
+    return (float)world_mask[x][y];
+}
+float get_box_filter_value( Uint8 ** world_mask, int x, int y ) {
+    float sum = 0;
+
+    for ( int i = x-1; i <= x+1; i++ ) {
+        for ( int j = y-1; j <= y+1; j++ ) {
+            sum += get_mask_value( world_mask, i, j );
+        }
+    }
+
+    return sum/9;
+}
+float gaussian_weight( int x, int y, int i, int j ) {
+    if ( i == x && j == y ) return 4.0f;
+    else if ( fabs( i-x ) + fabs( j-y ) == 1 ) return 2.0f;
+    else return 1.0f;
+}
+float get_gaussian_filter_value( Uint8 ** world_mask, int x, int y ) {
+    float sum = 0;
+    float weight_sum = 0;
+    float weight;
+
+    for ( int i = x-1; i <= x+1; i++ ) {
+        for ( int j = y-1; j <= y+1; j++ ) {
+            weight = gaussian_weight( x, y, i, j );
+            sum += get_mask_value( world_mask, i, j ) * weight;
+            weight_sum += weight;
+        }
+    }
+
+    return sum/weight_sum;
+}
+
+/*
+void dig_caves_perlin( Uint8 ** world_mask, long unsigned int seed ) {
+    float noise;
+
+    for ( int x = 0; x < WORLD_WIDTH; x++ ) {
+        for ( int y = 0; y < WORLD_HEIGHT; y++ ) {
+            if ( y < SURFACE_TO_UNDERGROUND_HEIGHT ) { // (obsolete) caves are generated from surface height but will actually appear lower due to big transition smoothing
+                world_mask[x][y] = 0; continue;
+            }
+
+            noise = perlin2d( x, y, CAVE_FREQUENCY, NOISE_DEPTH, seed );
+            if ( noise > DEEP_CAVE_THRESHOLD ) {
+                world_mask[x][y] = 1;
+            }
+            else {
+                world_mask[x][y] = 0;
+            }
+        }
+    }
+}
+*/

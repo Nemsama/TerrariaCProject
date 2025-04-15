@@ -19,6 +19,9 @@
 #define CAMERA_SCALE 1.0f
 #define CAMERA_SPEED 0.5f
 
+#define WORLD_WIDTH 6400
+#define WORLD_HEIGHT 1800
+
 #define PLAYER_ACCELERATION 0.05f // blocks per frame^2
 #define PLAYER_MAX_SPEED 20.0f // blocks per second
 #define PLAYER_MASS 10.0f
