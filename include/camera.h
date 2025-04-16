@@ -2,7 +2,7 @@
 #define CAMERA_H
 
 #include <common.h>
-#include <rect.h>
+// dependancies : lower
 
 #define CAMERA_BASE_WIDTH  (float)WINDOW_WIDTH  / PIXELS_PER_BLOCK
 #define CAMERA_BASE_HEIGHT (float)WINDOW_HEIGHT / PIXELS_PER_BLOCK

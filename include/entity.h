@@ -11,18 +11,15 @@
 typedef struct entity {
     sprite_t* sprite;
     rect_t world_rect;
-    float mov_acceleration;
-    float max_speed;  // blocks per frame
-    float jump_speed; // blocks per frame
 
     bool is_grounded;
-    float mass;
+    // float mass;
     vector2_t velocity;     // blocks per frame
     vector2_t acceleration; // blocks per frame per frame
 } entity_t;
 
 // need a valid (pre-initiated) sprite (pointer)
-entity_t* entity_init( sprite_t* sprite, vector2_t position, float mass, float acceleration, float max_speed, float jump_force );
+entity_t* entity_init( sprite_t* sprite, vector2_t position );
 
 // cannot set entity shape since it depends on the sprite
 void entity_get_shape( entity_t* entity, vector2_t* shape );

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector.h>
+// dependancies : upper
 
 typedef struct rect {
     vector2_t position;

@@ -1,5 +1,11 @@
 #include <vector.h>
 
+static float sign( float a ) {
+    if      ( a > 0.0f ) return  1.0f;
+    else if ( a < 0.0f ) return -1.0f;
+    else return 0.0f;
+}
+
 vector2_t vector2_zero( void ) {
     return (vector2_t){ 0.0f, 0.0f };
 }
@@ -17,6 +23,12 @@ float vector2_get_x( vector2_t v ) {
 }
 float vector2_get_y( vector2_t v ) {
     return v.y;
+}
+void  vector2_set_x( vector2_t* v, float x ) {
+    if ( v ) v->x = x;
+}
+void  vector2_set_y( vector2_t* v, float y ) {
+    if ( v ) v->y = y;
 }
 void vector2_get_int_values( vector2_t v, int* x, int* y ) {
     if ( x ) *x = v.x;
@@ -75,6 +87,39 @@ void vector2_normalize( vector2_t* v ) {
     v->y /= length;
 }
 
+void  vector2_cart_to_polar( vector2_t* v_cart ) {
+    if ( v_cart ) *v_cart = vector2_get_polar( *v_cart );
+}
+void  vector2_polar_to_cart( vector2_t* v_polar ) {
+    if ( v_polar ) *v_polar = vector2_get_cart( *v_polar );
+}
+// output the polar coordinates of the supposed cartesian input vector
+vector2_t vector2_get_polar( vector2_t v_cart ) {
+    vector2_t output;
+
+    output.x = vector2_length( v_cart );
+
+    if ( v_cart.x == 0.0f ) output.y = M_PI/2.0f * sign( v_cart.y );
+    else {
+        output.y = atanf( v_cart.y / v_cart.x );
+        if ( v_cart.x >  0 ) return output;
+        if ( v_cart.y >  0 ) output.y += M_PI;
+        if ( v_cart.y <= 0 ) output.y -= M_PI;
+    }
+
+    return output;
+}
+// output the cartesian coordinates of the supposed polar input vector
+vector2_t vector2_get_cart ( vector2_t v_polar ) {
+    vector2_t output;
+    output.x = cosf( vector2_get_y( v_polar ) );
+    output.y = sinf( vector2_get_y( v_polar ) );
+
+    vector2_mult_to( vector2_get_x(v_polar), &output );
+
+    return output;
+}
+
 float vector2_dot( vector2_t v1, vector2_t v2 ) {
     return (v1.x * v2.x + v1.y * v2.y);
 }
@@ -100,6 +145,16 @@ bool vector2_is_zero( vector2_t v ) {
 }
 bool vector2_is_equal( vector2_t v1, vector2_t v2 ) {
     return ( v1.x == v2.x && v1.y == v2.y );
+}
+
+vector2_t vector2_random_on_unit_sphere( void ) {
+    vector2_t out = vector2_one();
+
+    out.y = 2*M_PI * rand()/(float)RAND_MAX;
+
+    vector2_polar_to_cart( &out );
+
+    return out;
 }
 
 void vector2_print( vector2_t v ) {

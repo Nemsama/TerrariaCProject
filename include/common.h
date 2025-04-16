@@ -4,10 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+// dependancies : middle
 
 #include <vector.h>
+#include <rect.h>
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720

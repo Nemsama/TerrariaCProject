@@ -1,6 +1,6 @@
 #include <entity.h> 
 
-entity_t* entity_init( sprite_t* sprite, vector2_t position, float mass, float acceleration, float max_speed /* in blocks per seconds */, float jump_speed ) {
+entity_t* entity_init( sprite_t* sprite, vector2_t position ) {
     if ( !sprite ) {
         perror("An initialized sprite is needed for an entity");
         return NULL;
@@ -20,15 +20,10 @@ entity_t* entity_init( sprite_t* sprite, vector2_t position, float mass, float a
     };
     rect_set_shape( &entity->world_rect, shape );
 
-    entity->mov_acceleration = acceleration;
-
     entity->is_grounded = false;
-    entity->mass = mass;
+    // entity->mass = mass;
     entity->velocity = vector2_zero();
     entity->acceleration = vector2_zero();
-    entity->jump_speed = jump_speed / FPS; // convert to blocks per frame
-
-    entity->max_speed = max_speed / FPS; // ( ruins of a foreign civilisation : ) friction = speed / max_speed(in blocks per frame)
 
     return entity;
 }
@@ -95,9 +90,9 @@ void entity_apply_force( entity_t* entity ) {
 
     vector2_add_to( &entity->world_rect.position, entity->velocity );
 
-    if ( prevent_world_exit( &entity->world_rect ) ) {
-        entity->velocity = vector2_zero();
-    }
+    // if ( prevent_world_exit( &entity->world_rect ) ) {
+    //     entity->velocity = vector2_zero();
+    // }
 
     // printf("player accel: "); vector2_print( entity->acceleration ); puts("");
     entity->acceleration = vector2_zero(); // reset acceleration

@@ -43,12 +43,11 @@ game_t* game_init( void ) {
     sprite_set_pos( game->background, 0, 0 );
 
     sprite_t* player_sprite = sprite_init( "assets/sprites/Guide_idle_clean.png", game->renderer, 0, 0, 48, 82 );
-    game->player = (player_t*)entity_init( player_sprite, 
-                                          vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y),
-                                          PLAYER_MASS,
-                                          PLAYER_ACCELERATION,
-                                          PLAYER_MAX_SPEED,
-                                          PLAYER_JUMP_SPEED );
+    game->player = player_init( player_sprite, 
+                                vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y),
+                                PLAYER_ACCELERATION,
+                                PLAYER_MAX_SPEED,
+                                PLAYER_JUMP_SPEED );
     if ( game->player == NULL ) {
         perror("Failed to create player");
         game_quit( game );
@@ -91,7 +90,7 @@ void game_quit( game_t* game ) {
     destroy_blocks_types();
     if ( NULL != game->camera ) camera_destroy( game->camera );
 
-    if ( NULL != game->player ) entity_destroy( game->player );
+    if ( NULL != game->player ) player_destroy( game->player );
 
     if ( NULL != game->background ) sprite_destroy( game->background );
 
@@ -129,7 +128,7 @@ void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
             vector2_t mouse_world_pos;
 
             camera_get_pos_center( game->camera, &camera_pos );
-            entity_get_pos( game->player, &player_pos );
+            entity_get_pos( game->player->entity, &player_pos );
             SDL_GetMouseState( &mouse_screen_x, &mouse_screen_y );
             camera_screentoworld_pos( game->camera, &mouse_world_pos, mouse_screen_x, mouse_screen_y );
 
@@ -177,7 +176,7 @@ void game_update( game_t* game ) {
 
     player_update( game->player, keystate, game->world );
 
-    camera_update( game->camera, entity_output_pos( game->player ), keystate );
+    camera_update( game->camera, entity_output_pos( game->player->entity ), keystate );
 }
 
 void game_render( game_t* game ) {
@@ -192,7 +191,7 @@ void game_render( game_t* game ) {
     world_render( game->world, game->camera, game->renderer );
 
     // Render the player
-    entity_render( game->player, game->camera, game->renderer );
+    player_render( game->player, game->camera, game->renderer );
 
     // Present the back buffer
     SDL_RenderPresent( game->renderer );
