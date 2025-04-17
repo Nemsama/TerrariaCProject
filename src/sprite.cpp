@@ -71,6 +71,51 @@ sprite_t* sprite_init_texture( SDL_Texture* texture, int src_x, int src_y, int w
     return sprite;
 }
 
+SDL_Texture* copy_texture( SDL_Texture* source, SDL_Renderer* renderer ) {
+    int w, h;
+    Uint32 format;
+    int access;
+
+    // Get information about the source texture
+    if (SDL_QueryTexture(source, &format, &access, &w, &h) != 0) {
+        SDL_Log("SDL_QueryTexture failed: %s", SDL_GetError());
+        return NULL;
+    }
+
+    // Create a new texture with the same format and size
+    SDL_Texture* copy = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_TARGET, w, h);
+    if (!copy) {
+        SDL_Log("SDL_CreateTexture failed: %s", SDL_GetError());
+        return NULL;
+    }
+
+    // Save the current render target
+    SDL_Texture* old_target = SDL_GetRenderTarget(renderer);
+
+    // Set the new texture as the render target
+    SDL_SetRenderTarget(renderer, copy);
+    
+    /* 
+    // Clear it if you want (optional)
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
+    */
+    
+    // Copy the source texture onto the new texture
+    SDL_RenderCopy(renderer, source, NULL, NULL);
+
+    // Restore the previous render target
+    SDL_SetRenderTarget(renderer, old_target);
+
+    return copy;
+}
+
+sprite_t* sprite_copy( const sprite_t* sprite, SDL_Renderer* renderer ) {
+    SDL_Texture* new_texture = copy_texture( sprite->texture, renderer );
+
+    return sprite_init_texture( new_texture, sprite->src_rect.x, sprite->src_rect.y, sprite->src_rect.h, sprite->src_rect.h );
+}
+
 void sprite_destroy( sprite_t* sprite ) {
     if ( !sprite ) return;
 
@@ -109,6 +154,14 @@ void sprite_get_scale( sprite_t* sprite, int* width, int* height ) {
     if ( width ) *width = sprite->dest_rect.w;
     if ( height ) *height = sprite->dest_rect.h;
 }
+int sprite_get_width ( sprite_t* sprite ) {
+    if ( sprite ) return sprite->dest_rect.w;
+    return 0;
+}
+int sprite_get_height( sprite_t* sprite ) {
+    if ( sprite ) return sprite->dest_rect.h;
+    return 0;
+}
 
 void sprite_set_texture( sprite_t* sprite, SDL_Texture* texture ) {
     if ( sprite == NULL ) return;
@@ -143,12 +196,9 @@ void sprite_set_texture_path( sprite_t* sprite, const char* texture_path, SDL_Re
     sprite_set_texture( sprite, new_texture );
 }
 
-void sprite_render( sprite_t* sprite, camera_t* camera, SDL_Renderer* renderer ) {
-    if ( sprite == NULL || camera == NULL || renderer == NULL ) return;
-    // set the right scale for the sprite
-    camera_scale_sprite( camera, &sprite->dest_rect, &sprite->src_rect );
+void sprite_render( sprite_t* sprite, SDL_Renderer* renderer ) {
+    if ( sprite == NULL || renderer == NULL ) return;
 
-    // Render the sprite to the screen
     SDL_RenderCopy( renderer, sprite->texture, &sprite->src_rect, &sprite->dest_rect );
 }
 

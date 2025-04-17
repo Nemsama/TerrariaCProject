@@ -22,6 +22,10 @@ void camera_destroy( camera_t* camera );
 void camera_worldtoscreen_pos( camera_t* camera, vector2_t  world_pos, int *screen_x, int *screen_y );
 
 void camera_screentoworld_pos( camera_t* camera, vector2_t* world_pos, int  screen_x, int  screen_y );
+vector2_t camera_get_world_pos( camera_t* camera, int screen_x, int screen_y );
+
+int camera_get_screen_x( camera_t* camera, float world_x );
+int camera_get_screen_y( camera_t* camera, float world_y );
 
 bool camera_is_inside( camera_t* camera, vector2_t position );
 bool camera_is_seeing( camera_t* camera, rect_t* rect );

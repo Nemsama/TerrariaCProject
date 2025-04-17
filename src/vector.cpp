@@ -75,12 +75,12 @@ void vector2_div_to( vector2_t* vdest, float a ) {
     vdest->x /= a;
     vdest->y /= a;
 }
-vector2_t vector2_normalized( vector2_t v ) {
+vector2_t vector2_normalised( vector2_t v ) {
     float length = vector2_length( v );
     if ( length == 0.0f ) return vector2_zero();
     return (vector2_t){ v.x / length, v.y / length };
 }
-void vector2_normalize( vector2_t* v ) {
+void vector2_normalise( vector2_t* v ) {
     float length = vector2_length( *v );
     if ( length == 0.0f ) return;
     v->x /= length;
@@ -122,6 +122,17 @@ vector2_t vector2_get_cart ( vector2_t v_polar ) {
 
 float vector2_dot( vector2_t v1, vector2_t v2 ) {
     return (v1.x * v2.x + v1.y * v2.y);
+}
+
+// returns the normed direction from v1 to v2
+vector2_t vector2_direction( vector2_t v1, vector2_t v2 ) {
+    vector2_t direction;
+
+    direction = vector2_sub( v2, v1 );
+
+    vector2_normalise( &direction );
+
+    return direction;
 }
 
 vector2_t vector2_project_x( vector2_t v ) {

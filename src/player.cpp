@@ -1,5 +1,8 @@
 #include <player.h>
 
+SDL_Texture* inventory_slot_texture;
+SDL_Rect  slot_src_rect = { 0, 0, 100, 100 };
+SDL_Rect slot_dest_rect = { 0, 0, 60, 60 };
 
 // entity->jump_speed = jump_speed / FPS; // convert to blocks per frame
 player_t* player_init( sprite_t* sprite, vector2_t position, float acceleration, float max_speed /* in blocks per seconds */, float jump_speed ) {
@@ -16,15 +19,37 @@ player_t* player_init( sprite_t* sprite, vector2_t position, float acceleration,
     }
 
     player->mov_acceleration = acceleration;
-    player->max_speed = max_speed;
-    player->jump_speed = jump_speed;
+    player->max_speed = max_speed / FPS;
+    player->jump_speed = jump_speed / FPS;
+
+    // init empty inventory
+    for ( int i = 0; i < PLAYER_INVENTORY_HEIGHT * PLAYER_INVENTORY_WIDTH; i++ ) {
+        player->inventory[i] = ITEM_EMPTY_SLOT;
+    }
 
     return player;
+}
+void init_inventory_slot_texture( SDL_Renderer* renderer ) {
+    SDL_Surface* surface = IMG_Load( INVENTORY_SLOT_PATH );
+    if ( surface == NULL ) {
+        perror("Failed to load texture for inventory slot");
+        inventory_slot_texture = NULL;
+    }
+    else {
+        inventory_slot_texture = SDL_CreateTextureFromSurface( renderer, surface );
+        SDL_FreeSurface( surface );
+        if ( inventory_slot_texture == NULL ) {
+            perror("Failed to create texture from surface for inventory slot");
+        }
+    }
 }
 
 void player_destroy( player_t* player ) {
     entity_destroy( player->entity );
     free( player );
+}
+void destroy_inventory_slot_texture( void ) {
+    if ( inventory_slot_texture ) SDL_DestroyTexture( inventory_slot_texture );
 }
 
 void god_flight( player_t* player, const Uint8* keystate ) {
@@ -53,7 +78,7 @@ void gravity_scum( player_t* player, const Uint8* keystate ) {
         player_movement_x -= running_force( vector2_get_x( player->entity->velocity ), -player->mov_acceleration, -player->max_speed );
     }
     if ( keystate[SDL_SCANCODE_D] ) {
-        player_movement_x += running_force( vector2_get_x( player->entity->velocity ), player->mov_acceleration, player->max_speed );;
+        player_movement_x += running_force( vector2_get_x( player->entity->velocity ), player->mov_acceleration, player->max_speed );
     }
     if ( 0 == player_movement_x ) {
         if ( fabs( vector2_get_x( player->entity->velocity ) ) < 0.04f ) {
@@ -85,13 +110,63 @@ void player_update( player_t* player, const Uint8* keystate, world_t* world ) {
 
     entity_apply_force( player->entity );
 
-    // printf("player speed: "); vector2_print( player->entity->velocity ); puts("");
-    // printf("player pos  : "); vector2_print( player->entity->world_rect.position ); puts("");
+    // printf("player mov_force: %f\n", running_force( vector2_get_x( player->entity->velocity ), player->mov_acceleration, player->max_speed ) );
+    // printf("player     speed: " ); vector2_print( player->entity->velocity ); puts("");
+    // printf("player       pos: "); vector2_print( player->entity->world_rect.position ); puts("");
 
     // prevent_world_exit( &player->entity->world_rect );
     entity_apply_collisions( player->entity, world );
 }
 
+void dig_block( world_t* world, int x, int y, SDL_Renderer* renderer ) {
+    block_type_t block_type = world_output_block( world, x, y );
+    if ( block_type == AIR ) return;
+    world_set_block( world, x, y, AIR );
+    printf("digging block %d at %d %d\n", (int)block_type, x, y );
+
+    block_t* block = blocks_types[block_type];
+    sprite_t* sprite = sprite_copy( block->sprite, renderer );
+    sprite_set_scale( sprite, BLOCK_TEXTURE_SIZE/2, BLOCK_TEXTURE_SIZE/2 );
+    char name[128];
+    block_get_name( block_type, name );
+
+    loaded_items = item_list_add_new( loaded_items, sprite, vector2_new( (float)x + 0.5f, (float)y + 0.5f ), name, true, 1, false );
+}
+void player_left_click( player_t* player, camera_t* camera, SDL_Renderer* renderer, vector2_t world_pos, world_t* world ) {
+    if ( !player || !camera || !renderer || !world ) return;
+    printf("player left click !\n");
+    
+    int block_x = (int)vector2_get_x( world_pos );
+    int block_y = (int)vector2_get_y( world_pos );
+
+    dig_block( world, block_x, block_y, renderer );
+}
+
 void player_render( player_t* player, camera_t* camera, SDL_Renderer* renderer ) {
     entity_render( player->entity, camera, renderer );
+}
+
+void render_inventory_slot( int x, int y, SDL_Renderer* renderer ) {
+    if ( renderer == NULL || inventory_slot_texture == NULL ) return;
+
+    slot_dest_rect.x = x - slot_dest_rect.w/2;
+    slot_dest_rect.y = y - slot_dest_rect.h/2;
+
+    SDL_RenderCopy( renderer, inventory_slot_texture, &slot_src_rect, &slot_dest_rect );
+}
+void render_hotbar( player_t* player, SDL_Renderer* renderer ) {
+    int y = slot_dest_rect.h/2;
+    for ( int i = 0; i < PLAYER_INVENTORY_WIDTH; i++ ) {
+        int x = slot_dest_rect.w/2 + i*slot_dest_rect.w;
+        render_inventory_slot( x, y, renderer );
+
+        if ( item_is_same( ITEM_EMPTY_SLOT, player->inventory[i] ) ) continue;
+
+        item_render_center( player->inventory[i], x, y, renderer );
+    }
+}
+void player_render_inventory( player_t* player, SDL_Renderer* renderer ) {
+    if ( player == NULL || renderer == NULL ) return;
+
+    render_hotbar( player, renderer );
 }

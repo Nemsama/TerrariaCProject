@@ -64,7 +64,7 @@ game_t* game_init( void ) {
 
     world_flags_t world_flags;
     set_default_world_flags( &world_flags );
-    // world_flags.special_seed = FLAT;
+    world_flags.special_seed = FLAT;
     game->world = create_world( &world_flags );
     if ( game->world == NULL ) {
         perror("Failed to create world");
@@ -91,6 +91,7 @@ void game_quit( game_t* game ) {
     if ( NULL != game->camera ) camera_destroy( game->camera );
 
     if ( NULL != game->player ) player_destroy( game->player );
+    destroy_inventory_slot_texture();
 
     if ( NULL != game->background ) sprite_destroy( game->background );
 
@@ -102,7 +103,6 @@ void game_quit( game_t* game ) {
     free(game);
 }
 
-
 void game_start( game_t* game ) {
     SDL_RenderClear( game->renderer );
 
@@ -112,6 +112,8 @@ void game_start( game_t* game ) {
         game_quit( game );
         return;
     }
+    // load inventory slot texture
+    init_inventory_slot_texture( game->renderer );
 
     game->frame_count = 0;
     game->current_time = clock();
@@ -122,6 +124,8 @@ void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
     switch ( key->keysym.sym ) {
         case SDLK_EXCLAIM:
             // Show debug info
+            puts("");
+            game->print_debug = true;
             vector2_t player_pos;
             vector2_t camera_pos;
             int mouse_screen_x, mouse_screen_y;
@@ -161,6 +165,12 @@ void handle_one_event( game_t* game, SDL_Event* event ) {
                 camera_add_scale( game->camera, 0.05f );
             }
             break;
+        case SDL_MOUSEBUTTONDOWN:
+            if ( event->button.button == SDL_BUTTON_LEFT ) {
+                vector2_t mouse_world_pos = camera_get_world_pos( game->camera, event->button.x, event->button.y );
+                player_left_click( game->player, game->camera, game->renderer, mouse_world_pos, game->world );
+            }
+            break;
         default:
             break;
     }
@@ -177,6 +187,10 @@ void game_update( game_t* game ) {
     player_update( game->player, keystate, game->world );
 
     camera_update( game->camera, entity_output_pos( game->player->entity ), keystate );
+
+    item_list_updateall( loaded_items, entity_output_pos( game->player->entity ), 0.04f, 5*5, game->print_debug );
+
+    if ( game->print_debug ) game->print_debug = false;
 }
 
 void game_render( game_t* game ) {
@@ -192,6 +206,11 @@ void game_render( game_t* game ) {
 
     // Render the player
     player_render( game->player, game->camera, game->renderer );
+
+    // Render HUD
+    player_render_inventory( game->player, game->renderer );
+
+    item_list_renderall( loaded_items, game->camera, game->renderer );
 
     // Present the back buffer
     SDL_RenderPresent( game->renderer );

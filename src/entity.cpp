@@ -28,6 +28,13 @@ entity_t* entity_init( sprite_t* sprite, vector2_t position ) {
     return entity;
 }
 
+void entity_destroy(entity_t* entity) {
+    if ( !entity ) return;
+
+    sprite_destroy( entity->sprite );
+    free( entity );
+}
+
 void entity_get_shape( entity_t* entity, vector2_t* shape ) {
     if ( !entity ) return;
 
@@ -55,22 +62,51 @@ vector2_t entity_output_pos( entity_t* entity ) {
     return rect_output_pos( &entity->world_rect );
 }
 
-void entity_destroy(entity_t* entity) {
-    if ( !entity ) return;
+int  entity_get_sprite_x     ( entity_t* entity, camera_t* camera ) {
+    return camera_get_screen_x( camera, vector2_get_x( entity->world_rect.position ) );
+}
+int  entity_get_sprite_y     ( entity_t* entity, camera_t* camera ) {
+    return camera_get_screen_y( camera, vector2_get_y( entity->world_rect.position ) );
+}
+// void entity_get_sprite_pos   ( entity_t* entity, camera_t* camera, int* x, int* y );
+int  entity_get_sprite_width ( entity_t* entity, camera_t* camera ) {
+    camera_scale_sprite( camera, &entity->sprite->dest_rect, &entity->sprite->src_rect );
 
-    sprite_destroy( entity->sprite );
-    free( entity );
+    return entity->sprite->dest_rect.w;
+}
+int  entity_get_sprite_height( entity_t* entity, camera_t* camera ) {
+    camera_scale_sprite( camera, &entity->sprite->dest_rect, &entity->sprite->src_rect );
+
+    return entity->sprite->dest_rect.h;
 }
 
 void entity_render( entity_t* entity, camera_t* camera, SDL_Renderer* renderer ) {
     if ( !entity || !camera || !renderer ) return;
     if ( !camera_is_seeing( camera, &entity->world_rect ) ) return;
 
-    int entity_screen_x, entity_screen_y;
-    camera_worldtoscreen_pos( camera, entity_output_pos( entity ), &entity_screen_x, &entity_screen_y );
+    int entity_screen_x = entity_get_sprite_x( entity, camera );
+    int entity_screen_y = entity_get_sprite_y( entity, camera );
     sprite_set_pos( entity->sprite, entity_screen_x, entity_screen_y );
 
-    sprite_render( entity->sprite, camera, renderer );
+    // set the right scale for the sprite
+    camera_scale_sprite( camera, &entity->sprite->dest_rect, &entity->sprite->src_rect );
+
+    sprite_render( entity->sprite, renderer );
+}
+void entity_render_center( entity_t* entity, camera_t* camera, SDL_Renderer* renderer ) {
+    if ( !entity || !camera || !renderer ) return;
+    if ( !camera_is_seeing( camera, &entity->world_rect ) ) return;
+
+    int entity_screen_x, entity_screen_y;
+    camera_worldtoscreen_pos( camera, entity_output_pos( entity ), &entity_screen_x, &entity_screen_y );
+    entity_screen_x -= sprite_get_width ( entity->sprite ) / 2;
+    entity_screen_y -= sprite_get_height( entity->sprite ) / 2;
+    sprite_set_pos( entity->sprite, entity_screen_x, entity_screen_y );
+
+    // set the right scale for the sprite
+    camera_scale_sprite( camera, &entity->sprite->dest_rect, &entity->sprite->src_rect );
+
+    sprite_render( entity->sprite, renderer );
 }
 
 void entity_add_force( entity_t* entity, vector2_t force ) {
@@ -96,6 +132,14 @@ void entity_apply_force( entity_t* entity ) {
 
     // printf("player accel: "); vector2_print( entity->acceleration ); puts("");
     entity->acceleration = vector2_zero(); // reset acceleration
+}
+
+
+// attract the entity towards the position with an amplitude 'force'
+void entity_attract( entity_t* entity, vector2_t position, float force ) {
+    vector2_t direction = vector2_direction( entity->world_rect.position, position );
+
+    entity_add_force( entity, vector2_mult( force, direction ) );
 }
 
 void entity_impulse( entity_t* entity, vector2_t impulse ) {

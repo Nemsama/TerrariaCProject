@@ -35,6 +35,14 @@ void destroy_blocks_types( void ) {
     }
 }
 
+
+void block_get_name( block_type_t block_type, char* name ) {
+    const char* block_texture_names[BLOCK_TYPES_COUNT] = BLOCK_TEXTURES_NAMES;
+
+    strncpy( name, block_texture_names[block_type], 128 );
+}
+
+
 void block_render( block_t* block, camera_t* camera, SDL_Renderer* renderer ) {
     if ( block == NULL || camera == NULL || renderer == NULL ) return;
 
@@ -44,5 +52,7 @@ void block_render( block_t* block, camera_t* camera, SDL_Renderer* renderer ) {
 
     // printf("block %d %d %d %d\n", block->x, block->y, block->sprite->dest_rect.x, block->sprite->dest_rect.y);
 
-    sprite_render( block->sprite, camera, renderer );
+    camera_scale_sprite( camera, &block->sprite->dest_rect, &block->sprite->src_rect );
+
+    sprite_render( block->sprite, renderer );
 }

@@ -13,6 +13,7 @@ typedef struct sprite {
 } sprite_t;
 
 sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src_x, int src_y, int width, int height );
+sprite_t* sprite_copy( const sprite_t* sprite, SDL_Renderer* renderer );
 sprite_t* sprite_init_texture( SDL_Texture* texture, int src_x, int src_y, int width, int height );
 
 void sprite_destroy( sprite_t* sprite );
@@ -24,7 +25,11 @@ void sprite_set_scale( sprite_t* sprite, int width, int height );
 void sprite_scale( sprite_t* sprite, float scale_x, float scale_y );
 void sprite_get_scale( sprite_t* sprite, int* width, int* height );
 
-void sprite_render( sprite_t* sprite, camera_t* camera, SDL_Renderer* renderer );
+int sprite_get_width ( sprite_t* sprite );
+int sprite_get_height( sprite_t* sprite );
+
+// sprite_render only print the sprite's texture on the renderer according to its source and dest rects
+void sprite_render( sprite_t* sprite, SDL_Renderer* renderer );
 void sprite_render_background( sprite_t* background, camera_t* camera, SDL_Renderer* renderer );
 
 void sprite_set_texture( sprite_t* sprite, SDL_Texture* texture );

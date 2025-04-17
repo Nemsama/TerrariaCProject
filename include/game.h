@@ -26,6 +26,8 @@ typedef struct game {
     camera_t* camera;
     world_t* world;
     player_t* player;
+
+    bool print_debug;
 } game_t;
 
 game_t* game_init( void );

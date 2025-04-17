@@ -24,6 +24,8 @@ float vector2_distance( vector2_t v1, vector2_t v2 );
 float vector2_length2( vector2_t v );
 float vector2_distance2( vector2_t v1, vector2_t v2 );
 // float vector2_dot( vector2_t v1, vector2_t v2 );
+// returns the normed direction from v1 to v2
+vector2_t vector2_direction( vector2_t v1, vector2_t v2 );
 
 void  vector2_cart_to_polar( vector2_t* v_cart );
 void  vector2_polar_to_cart( vector2_t* v_polar );
@@ -41,8 +43,8 @@ vector2_t vector2_mult( float a, vector2_t v );
 void vector2_mult_to( float a, vector2_t* vdest );
 vector2_t vector2_div( vector2_t v, float a );
 void vector2_div_to( vector2_t* vdest, float a );
-vector2_t vector2_normalized( vector2_t v );
-void vector2_normalize( vector2_t* v );
+vector2_t vector2_normalised( vector2_t v );
+void vector2_normalise( vector2_t* v );
 float vector2_dot( vector2_t v1, vector2_t v2 );
 
 vector2_t vector2_project_x( vector2_t v );

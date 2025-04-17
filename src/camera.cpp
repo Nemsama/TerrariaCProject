@@ -44,6 +44,22 @@ void camera_screentoworld_pos( camera_t* camera, vector2_t* world_pos, int  scre
     vector2_mult_to( 1.0f / camera->pixels_per_block, &camera_relative_pos );
     *world_pos = vector2_add( rect_output_pos( &camera->world_rect ), camera_relative_pos );
 }
+vector2_t camera_get_world_pos( camera_t* camera, int screen_x, int screen_y ) {
+    vector2_t world_pos;
+
+    camera_screentoworld_pos( camera, &world_pos, screen_x, screen_y );
+
+    return world_pos;
+}
+
+int camera_get_screen_x( camera_t* camera, float world_x ) {
+    float camera_relative_pos = world_x - vector2_get_x( camera->world_rect.position );
+    return (int)( camera_relative_pos * camera->pixels_per_block );
+}
+int camera_get_screen_y( camera_t* camera, float world_y ) {
+    float camera_relative_pos = world_y - vector2_get_y( camera->world_rect.position );
+    return (int)( camera_relative_pos * camera->pixels_per_block );
+}
 
 void camera_get_pos( camera_t* camera, vector2_t* position ) {
     if ( camera == NULL || position == NULL ) return;
