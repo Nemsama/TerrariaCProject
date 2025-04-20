@@ -64,7 +64,7 @@ game_t* game_init( void ) {
 
     world_flags_t world_flags;
     set_default_world_flags( &world_flags );
-    world_flags.special_seed = FLAT;
+    // world_flags.special_seed = FLAT;
     game->world = create_world( &world_flags );
     if ( game->world == NULL ) {
         perror("Failed to create world");
@@ -188,7 +188,7 @@ void game_update( game_t* game ) {
 
     camera_update( game->camera, entity_output_pos( game->player->entity ), keystate );
 
-    item_list_updateall( loaded_items, entity_output_pos( game->player->entity ), 0.04f, 5*5, game->print_debug );
+    loaded_items = item_list_updateall( loaded_items, entity_output_pos( game->player->entity ), 0.04f, 5*5, game->print_debug );
 
     if ( game->print_debug ) game->print_debug = false;
 }

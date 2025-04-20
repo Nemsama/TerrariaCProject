@@ -9,6 +9,8 @@
 #define ITEM_MAX_COUNT 9999
 #define ITEM_EMPTY_SLOT NULL
 
+#define ITEM_RENDER_DISTANCE2 20*20
+
 typedef struct item {
     char name[ITEM_MAX_NAME_LEN];
     bool is_stackable;
@@ -35,8 +37,10 @@ item_list_t item_list_destroy( item_list_t item_list );
 item_list_t item_list_add( item_list_t item_list, item_t* item );
 item_list_t item_list_add_new( item_list_t item_list, sprite_t* sprite, vector2_t position, char* name, bool is_stackable, int count, bool is_in_inventory );
 item_list_t item_list_remove( item_list_t item_list, item_t* item );
-void item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, bool print_debug );
+item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, bool print_debug );
 void item_list_renderall( item_list_t item_list, camera_t* camera, SDL_Renderer* renderer );
+
+item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, item_t** item );
 
 // compare the type (name) of items, not count
 bool item_is_same  ( item_t* item1, item_t* item2 );
@@ -56,7 +60,9 @@ void item_throw( item_t* item, vector2_t speed );
 // set the item as inside an inventory
 void item_pickup( item_t* item );
 // if outside an inventory, apply gravity to the item
-void item_update( item_t* item, vector2_t player_pos, float force, float range2 );
+// if the item is out of render distance, destroy the item and return false
+// else return true
+bool item_update( item_t* item, vector2_t player_pos, float force, float range2 );
 
 // only used for on world items : scale the sprite to match camera's zoom
 void item_render_scaled( item_t* item, camera_t* camera, SDL_Renderer* renderer );
@@ -64,5 +70,7 @@ void item_render_scaled( item_t* item, camera_t* camera, SDL_Renderer* renderer 
 void item_render       ( item_t* item, int x, int y, SDL_Renderer* renderer );
 // print the sprite on the renderer centered on the given position
 void item_render_center( item_t* item, int x, int y, SDL_Renderer* renderer );
+
+void item_print( item_t* item );
 
 #endif

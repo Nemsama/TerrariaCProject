@@ -103,6 +103,17 @@ void player_handle_controls( player_t* player, const Uint8* keystate ) {
     // god_flight( player, keystate );
 }
 
+bool player_loot_item( player_t* player, item_t* item ) {
+    if ( player == NULL || item == NULL ) return false;
+    printf("looted item "); puts(item->name);
+
+    item_group( player->inventory[0], item );
+    item_destroy( item );
+    // printf("inventory ("); for (int i=0; i<PLAYER_INVENTORY_WIDTH; i++) item_print(player->inventory[i]); puts(")");
+
+    return true;
+}
+
 void player_update( player_t* player, const Uint8* keystate, world_t* world ) {
     if ( !player ) return;
 
@@ -116,6 +127,12 @@ void player_update( player_t* player, const Uint8* keystate, world_t* world ) {
 
     // prevent_world_exit( &player->entity->world_rect );
     entity_apply_collisions( player->entity, world );
+
+    item_t* looted_item;
+    loaded_items = item_list_grab_first_colliding( loaded_items, player->entity->world_rect, &looted_item );
+    if ( looted_item == NULL ) return;
+
+    player_loot_item( player, looted_item );
 }
 
 void dig_block( world_t* world, int x, int y, SDL_Renderer* renderer ) {
