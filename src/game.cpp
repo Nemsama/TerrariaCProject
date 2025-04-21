@@ -123,7 +123,7 @@ void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
         case SDLK_EXCLAIM:
             // Show debug info
             puts("");
-            game->print_debug = true;
+            // game->print_debug = true;
             vector2_t player_pos;
             vector2_t camera_pos;
             int mouse_screen_x, mouse_screen_y;
@@ -140,9 +140,10 @@ void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
             printf("camera center pos : "); vector2_print( camera_pos );           printf("\n");
             printf("mouse screen pos  : (%d, %d)\n", mouse_screen_x, mouse_screen_y);
             printf("mouse world pos   : "); vector2_print( mouse_world_pos );      printf("\n");
-            player_print_inventory( game->player );
+            player_print_inventory( game->player ); puts("");
+            item_list_print( loaded_items ); puts("");
 
-            puts("\n");
+            puts("");
             break;
         default:
             break;

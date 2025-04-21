@@ -4,6 +4,8 @@ item_list_t loaded_items = item_list_new();
 
 // need a pre-initiated sprite
 item_t* item_init( sprite_t* sprite, vector2_t position, char* name, bool is_stackable, int count, bool is_in_inventory ) {
+    static int id_counter = -1;
+
     item_t* item = (item_t*)calloc( 1, sizeof(*item) );
     if ( item == ITEM_EMPTY_SLOT ) {
         perror("Failed to allocate memory for item structure");
@@ -20,6 +22,7 @@ item_t* item_init( sprite_t* sprite, vector2_t position, char* name, bool is_sta
     item->is_stackable = is_stackable;
     item->count = count;
     item->is_in_inventory = is_in_inventory;
+    item->id = id_counter++;
 
     return item;
 }
@@ -281,6 +284,7 @@ bool item_update( item_t* item, vector2_t player_pos, float force, float range2,
 
     if ( distance2 > ITEM_RENDER_DISTANCE2 ) {
         item_destroy( item, destroy_texture );
+        puts("item out of range destroyed");
         return false;
     }
     if ( distance2 <= range2 ) entity_attract( item->entity, player_pos, force );
@@ -316,6 +320,5 @@ void item_render_center( item_t* item, int x, int y, SDL_Renderer* renderer ) {
 
 void item_print( item_t* item ) {
     if ( item == ITEM_EMPTY_SLOT ) { printf("()"); return; }
-    printf("(name=%s;", item->name );
-    printf("count=%d)", item->count);
+    printf("(%d %s; id=%d)", item->count, item->name, item->id );
 }

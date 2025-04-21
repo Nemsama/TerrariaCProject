@@ -11,7 +11,10 @@
 
 #define ITEM_RENDER_DISTANCE2 20*20
 
+#define BLOCK_ITEM_SCALE 0.5f
+
 typedef struct item {
+    int id;
     char name[ITEM_MAX_NAME_LEN];
     bool is_stackable;
     int count;

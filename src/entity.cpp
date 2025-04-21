@@ -176,7 +176,7 @@ void entity_push( entity_t* entity, int colliding_right, int colliding_bottom, v
         entity->velocity.y = 0;
     }
     else if ( vector2_get_y( displacement ) < 0 ) {
-        entity->world_rect.position.y  = (float)colliding_bottom - vector2_get_y( shape ) - 0.0f;
+        entity->world_rect.position.y  = (float)colliding_bottom - vector2_get_y( shape ) - 0.01f;
         entity->velocity.y = 0;
         entity->is_grounded = true;
     }
@@ -185,7 +185,7 @@ void entity_push( entity_t* entity, int colliding_right, int colliding_bottom, v
         entity->velocity.x = 0;
     }
     else if ( vector2_get_x( displacement ) < 0 ) {
-        entity->world_rect.position.x  = (float)colliding_right - vector2_get_x( shape ) - 0.0f;
+        entity->world_rect.position.x  = (float)colliding_right - vector2_get_x( shape ) - 0.01f;
         entity->velocity.x = 0;
     }
 }
@@ -194,7 +194,7 @@ vector2_t check_corner_collisions( entity_t* entity, world_t* world, int collidi
     if ( !entity || !world ) return vector2_zero();
 
     vector2_t colliding_boundary;
-    vector2_t corner_pos;
+    vector2_t entity_corner_pos;
     vector2_t entity_shape = entity_output_shape( entity );
 
     vector2_t depth = vector2_zero();
@@ -203,72 +203,105 @@ vector2_t check_corner_collisions( entity_t* entity, world_t* world, int collidi
         entity->is_grounded = true;
 
         colliding_boundary = vector2_new( colliding_left+1.0f, colliding_top+1.0f );
-        corner_pos = entity_output_pos( entity );
-        depth = vector2_sub( colliding_boundary, corner_pos );
+        entity_corner_pos = entity_output_pos( entity );
+        depth = vector2_sub( colliding_boundary, entity_corner_pos );
 
         // printf("topleft collision, depth: "); vector2_print( depth ); puts("");
 
-        if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
-            vector2_add_to( &displacement, vector2_project_y( depth ) );
+        if ( vector2_get_x( entity->velocity ) < 0 && vector2_get_y( entity->velocity ) < 0 ) {
+            if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
+                vector2_add_to( &displacement, vector2_project_y( depth ) );
+            }
+            else {
+                vector2_add_to( &displacement, vector2_project_x( depth ) );
+            }
         }
         else {
-            vector2_add_to( &displacement, vector2_project_x( depth ) );
+            if ( vector2_get_x( entity->velocity ) >= 0 ) {
+                vector2_add_to( &displacement, vector2_project_y( depth ) );
+            }
+            else { // vector2_get_y( entity->velocity ) >= 0
+                vector2_add_to( &displacement, vector2_project_x( depth ) );
+            }
         }
     }
     if ( AIR != world_output_block( world, colliding_right, colliding_top ) ) {
         entity->is_grounded = true;
 
         colliding_boundary = vector2_new( colliding_right, colliding_top+1.0f );
-        corner_pos = vector2_add( entity_output_pos( entity ), vector2_project_x( entity_shape ) );
-        depth = vector2_sub( colliding_boundary, corner_pos );
+        entity_corner_pos = vector2_add( entity_output_pos( entity ), vector2_project_x( entity_shape ) );
+        depth = vector2_sub( colliding_boundary, entity_corner_pos );
 
         // printf("topright collision, depth: "); vector2_print( depth ); puts("");
 
-        if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
-            vector2_add_to( &displacement, vector2_project_y( depth ) );
+        if ( vector2_get_x( entity->velocity ) > 0 && vector2_get_y( entity->velocity ) < 0 ) {
+            if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
+                vector2_add_to( &displacement, vector2_project_y( depth ) );
+            }
+            else {
+                vector2_add_to( &displacement, vector2_project_x( depth ) );
+            }
         }
         else {
-            vector2_add_to( &displacement, vector2_project_x( depth ) );
+            if ( vector2_get_x( entity->velocity ) <= 0 ) {
+                vector2_add_to( &displacement, vector2_project_y( depth ) );
+            }
+            else { // vector2_get_y( entity->velocity ) >= 0
+                vector2_add_to( &displacement, vector2_project_x( depth ) );
+            }
         }
     }
     if ( AIR != world_output_block( world, colliding_left, colliding_bottom ) ) {
         entity->is_grounded = true;
 
         colliding_boundary = vector2_new( colliding_left+1.0f, colliding_bottom );
-        corner_pos = vector2_add( entity_output_pos( entity ), vector2_project_y( entity_shape ) );
-        depth = vector2_sub( colliding_boundary, corner_pos );
+        entity_corner_pos = vector2_add( entity_output_pos( entity ), vector2_project_y( entity_shape ) );
+        depth = vector2_sub( colliding_boundary, entity_corner_pos );
 
         // printf("bottomleft collision, depth: "); vector2_print( depth ); puts("");
 
-        if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
-            vector2_add_to( &displacement, vector2_project_y( depth ) );
+        if ( vector2_get_x( entity->velocity ) < 0 && vector2_get_y( entity->velocity ) > 0 ) {
+            if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
+                vector2_add_to( &displacement, vector2_project_y( depth ) );
+            }
+            else {
+                vector2_add_to( &displacement, vector2_project_x( depth ) );
+            }
         }
         else {
-            vector2_add_to( &displacement, vector2_project_x( depth ) );
+            if ( vector2_get_x( entity->velocity ) >= 0 ) {
+                vector2_add_to( &displacement, vector2_project_y( depth ) );
+            }
+            else { // vector2_get_y( entity->velocity ) >= 0
+                vector2_add_to( &displacement, vector2_project_x( depth ) );
+            }
         }
     }
     if ( AIR != world_output_block( world, colliding_right, colliding_bottom ) ) {
         entity->is_grounded = true;
 
         colliding_boundary = vector2_new( colliding_right, colliding_bottom );
-        corner_pos = vector2_add( entity_output_pos( entity ), entity_shape );
-        depth = vector2_sub( colliding_boundary, corner_pos );
+        entity_corner_pos = vector2_add( entity_output_pos( entity ), entity_shape );
+        depth = vector2_sub( colliding_boundary, entity_corner_pos );
 
         // printf("bottomright collision, depth: "); vector2_print( depth ); puts("");
 
-        if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
-            vector2_add_to( &displacement, vector2_project_y( depth ) );
+        if ( vector2_get_x( entity->velocity ) > 0 && vector2_get_y( entity->velocity ) > 0 ) {
+            if ( fabs( vector2_get_x( depth ) ) > fabs( vector2_get_y( depth ) ) ) {
+                vector2_add_to( &displacement, vector2_project_y( depth ) );
+            }
+            else {
+                vector2_add_to( &displacement, vector2_project_x( depth ) );
+            }
         }
         else {
-            vector2_add_to( &displacement, vector2_project_x( depth ) );
+            if ( vector2_get_x( entity->velocity ) <= 0 ) {
+                vector2_add_to( &displacement, vector2_project_y( depth ) );
+            }
+            else { // vector2_get_y( entity->velocity ) >= 0
+                vector2_add_to( &displacement, vector2_project_x( depth ) );
+            }
         }
-    }
-
-    if ( fabs( vector2_get_x( displacement ) ) > fabs( vector2_get_y( displacement ) ) ) {
-        entity_push( entity, colliding_right, colliding_bottom, vector2_project_x( displacement ) );
-    }
-    else {
-        entity_push( entity, colliding_right, colliding_bottom, vector2_project_y( displacement ) );
     }
 
     return displacement;
@@ -296,5 +329,12 @@ void entity_apply_collisions( entity_t* entity, world_t* world ) {
     displacement = check_corner_collisions( entity, world, colliding_left, colliding_top, colliding_right, colliding_bottom );
     // printf("corner collisions displacement: "); vector2_print( displacement ); puts("");
     
+    if ( fabs( vector2_get_x( displacement ) ) > fabs( vector2_get_y( displacement ) ) ) {
+        entity_push( entity, colliding_right, colliding_bottom, vector2_project_x( displacement ) );
+    }
+    else {
+        entity_push( entity, colliding_right, colliding_bottom, vector2_project_y( displacement ) );
+    }
+
 }
 
