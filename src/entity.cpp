@@ -28,11 +28,13 @@ entity_t* entity_init( sprite_t* sprite, vector2_t position ) {
     return entity;
 }
 
-void entity_destroy(entity_t* entity) {
-    if ( !entity ) return;
+SDL_Texture* entity_destroy( entity_t* entity, bool destroy_texture ) {
+    if ( !entity ) return NULL;
 
-    sprite_destroy( entity->sprite );
+    SDL_Texture* texture = sprite_destroy( entity->sprite, destroy_texture );
     free( entity );
+
+    return texture;
 }
 
 void entity_get_shape( entity_t* entity, vector2_t* shape ) {

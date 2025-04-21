@@ -6,6 +6,9 @@
 #include <camera.h>
 // dependancies : lower
 
+#define DESTROY_TEXTURE true
+#define KEEP_TEXTURE false
+
 typedef struct sprite {
     SDL_Texture* texture;
     SDL_Rect src_rect; // select the part of the texture to draw
@@ -13,10 +16,10 @@ typedef struct sprite {
 } sprite_t;
 
 sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src_x, int src_y, int width, int height );
-sprite_t* sprite_copy( const sprite_t* sprite, SDL_Renderer* renderer );
+sprite_t* sprite_copy( const sprite_t* sprite/* , SDL_Renderer* renderer */ );
 sprite_t* sprite_init_texture( SDL_Texture* texture, int src_x, int src_y, int width, int height );
 
-void sprite_destroy( sprite_t* sprite );
+SDL_Texture* sprite_destroy( sprite_t* sprite, bool destroy_texture );
 
 void sprite_set_pos( sprite_t* sprite, int x, int y );
 void sprite_get_pos( sprite_t* sprite, int* x, int* y );

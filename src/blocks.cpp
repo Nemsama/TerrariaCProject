@@ -30,7 +30,7 @@ void destroy_blocks_types( void ) {
     for ( int i = 0; i < BLOCK_TYPES_COUNT; i++ ) {
         if ( blocks_types[i] == NULL ) continue;
 
-        sprite_destroy( blocks_types[i]->sprite );
+        sprite_destroy( blocks_types[i]->sprite, DESTROY_TEXTURE );
         free( blocks_types[i] );
     }
 }

@@ -21,7 +21,7 @@ typedef struct entity {
 // need a valid (pre-initiated) sprite (pointer)
 entity_t* entity_init( sprite_t* sprite, vector2_t position );
 // free entity memory AND entity's sprite memory
-void entity_destroy( entity_t* entity );
+SDL_Texture* entity_destroy( entity_t* entity, bool destroy_texture );
 
 // cannot set entity shape since it depends on the sprite
 void entity_get_shape( entity_t* entity, vector2_t* shape );

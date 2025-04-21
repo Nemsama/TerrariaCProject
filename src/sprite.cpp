@@ -110,17 +110,25 @@ SDL_Texture* copy_texture( SDL_Texture* source, SDL_Renderer* renderer ) {
     return copy;
 }
 
-sprite_t* sprite_copy( const sprite_t* sprite, SDL_Renderer* renderer ) {
-    SDL_Texture* new_texture = copy_texture( sprite->texture, renderer );
-
+sprite_t* sprite_copy( const sprite_t* sprite/* , SDL_Renderer* renderer */ ) {
+    SDL_Texture* new_texture = sprite->texture;
+    // the texture is the same but will be printed on the screen at different position depending on the used sprite
     return sprite_init_texture( new_texture, sprite->src_rect.x, sprite->src_rect.y, sprite->src_rect.h, sprite->src_rect.h );
 }
 
-void sprite_destroy( sprite_t* sprite ) {
-    if ( !sprite ) return;
+SDL_Texture* sprite_destroy( sprite_t* sprite, bool destroy_texture ) {
+    if ( !sprite ) return NULL;
 
-    SDL_DestroyTexture( sprite->texture );
-    free(sprite);
+    if ( destroy_texture ) {
+        SDL_DestroyTexture( sprite->texture );
+        free(sprite);
+        return NULL;
+    }
+    else {
+        SDL_Texture* texture = sprite->texture;
+        free(sprite);
+        return texture;
+    }
 }
 
 void sprite_set_pos( sprite_t* sprite, int x, int y ) {

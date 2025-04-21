@@ -64,7 +64,7 @@ game_t* game_init( void ) {
 
     world_flags_t world_flags;
     set_default_world_flags( &world_flags );
-    // world_flags.special_seed = FLAT;
+    world_flags.special_seed = FLAT;
     game->world = create_world( &world_flags );
     if ( game->world == NULL ) {
         perror("Failed to create world");
@@ -93,7 +93,7 @@ void game_quit( game_t* game ) {
     if ( NULL != game->player ) player_destroy( game->player );
     destroy_inventory_slot_texture();
 
-    if ( NULL != game->background ) sprite_destroy( game->background );
+    if ( NULL != game->background ) sprite_destroy( game->background, DESTROY_TEXTURE );
 
     if ( NULL != game->renderer ) SDL_DestroyRenderer( game->renderer );
     if ( NULL != game->window ) SDL_DestroyWindow( game->window );
@@ -142,8 +142,9 @@ void game_handle_keydown( game_t* game, SDL_KeyboardEvent* key ) {
             printf("camera center pos : "); vector2_print( camera_pos );           printf("\n");
             printf("mouse screen pos  : (%d, %d)\n", mouse_screen_x, mouse_screen_y);
             printf("mouse world pos   : "); vector2_print( mouse_world_pos );      printf("\n");
+            player_print_inventory( game->player );
 
-            puts("");
+            puts("\n");
             break;
         default:
             break;
@@ -168,7 +169,7 @@ void handle_one_event( game_t* game, SDL_Event* event ) {
         case SDL_MOUSEBUTTONDOWN:
             if ( event->button.button == SDL_BUTTON_LEFT ) {
                 vector2_t mouse_world_pos = camera_get_world_pos( game->camera, event->button.x, event->button.y );
-                player_left_click( game->player, game->camera, game->renderer, mouse_world_pos, game->world );
+                player_left_click( game->player, game->camera, mouse_world_pos, game->world );
             }
             break;
         default:
@@ -188,7 +189,7 @@ void game_update( game_t* game ) {
 
     camera_update( game->camera, entity_output_pos( game->player->entity ), keystate );
 
-    loaded_items = item_list_updateall( loaded_items, entity_output_pos( game->player->entity ), 0.04f, 5*5, game->print_debug );
+    loaded_items = item_list_updateall( loaded_items, entity_output_pos( game->player->entity ), 0.04f, 5*5, game->print_debug, KEEP_TEXTURE );
 
     if ( game->print_debug ) game->print_debug = false;
 }

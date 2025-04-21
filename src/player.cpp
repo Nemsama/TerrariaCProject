@@ -45,7 +45,7 @@ void init_inventory_slot_texture( SDL_Renderer* renderer ) {
 }
 
 void player_destroy( player_t* player ) {
-    entity_destroy( player->entity );
+    entity_destroy( player->entity, DESTROY_TEXTURE );
     free( player );
 }
 void destroy_inventory_slot_texture( void ) {
@@ -105,12 +105,24 @@ void player_handle_controls( player_t* player, const Uint8* keystate ) {
 
 bool player_loot_item( player_t* player, item_t* item ) {
     if ( player == NULL || item == NULL ) return false;
-    printf("looted item "); puts(item->name);
+    // printf("looted item "); puts(item->name);
 
-    item_group( player->inventory[0], item );
-    item_destroy( item );
-    // printf("inventory ("); for (int i=0; i<PLAYER_INVENTORY_WIDTH; i++) item_print(player->inventory[i]); puts(")");
+    int remaining = -1;
+    int i = 0;
+    while ( remaining != 0 ) {
+        if ( i == PLAYER_INVENTORY_SIZE ) return false;
+        if ( item_is_empty( player->inventory[i] ) ) {
+            player->inventory[i] = item_copy( item );
+            item->count = 0;
+            remaining = 0;
+        }
+        else {
+            remaining = item_group( player->inventory[i], item );
+        }
 
+        i++;
+    }
+    
     return true;
 }
 
@@ -130,33 +142,36 @@ void player_update( player_t* player, const Uint8* keystate, world_t* world ) {
 
     item_t* looted_item;
     loaded_items = item_list_grab_first_colliding( loaded_items, player->entity->world_rect, &looted_item );
-    if ( looted_item == NULL ) return;
+    if ( looted_item != ITEM_EMPTY_SLOT ) {
+        if ( player_loot_item( player, looted_item ) ) { // item completely looted
+            loaded_items = item_list_remove( loaded_items, looted_item );
+            item_destroy( looted_item, KEEP_TEXTURE ); // TODO : modify the code to allow texture destruction for non-block items
+        }
+    }
 
-    player_loot_item( player, looted_item );
 }
 
-void dig_block( world_t* world, int x, int y, SDL_Renderer* renderer ) {
+void dig_block( world_t* world, int x, int y ) {
     block_type_t block_type = world_output_block( world, x, y );
     if ( block_type == AIR ) return;
     world_set_block( world, x, y, AIR );
-    printf("digging block %d at %d %d\n", (int)block_type, x, y );
+    // printf("digging block %d at %d %d\n", (int)block_type, x, y );
 
     block_t* block = blocks_types[block_type];
-    sprite_t* sprite = sprite_copy( block->sprite, renderer );
+    sprite_t* sprite = sprite_copy( block->sprite );
     sprite_set_scale( sprite, BLOCK_TEXTURE_SIZE/2, BLOCK_TEXTURE_SIZE/2 );
     char name[128];
     block_get_name( block_type, name );
 
     loaded_items = item_list_add_new( loaded_items, sprite, vector2_new( (float)x + 0.5f, (float)y + 0.5f ), name, true, 1, false );
 }
-void player_left_click( player_t* player, camera_t* camera, SDL_Renderer* renderer, vector2_t world_pos, world_t* world ) {
-    if ( !player || !camera || !renderer || !world ) return;
-    printf("player left click !\n");
+void player_left_click( player_t* player, camera_t* camera, vector2_t world_pos, world_t* world ) {
+    if ( !player || !camera || !world ) return;
     
     int block_x = (int)vector2_get_x( world_pos );
     int block_y = (int)vector2_get_y( world_pos );
 
-    dig_block( world, block_x, block_y, renderer );
+    dig_block( world, block_x, block_y );
 }
 
 void player_render( player_t* player, camera_t* camera, SDL_Renderer* renderer ) {
@@ -186,4 +201,12 @@ void player_render_inventory( player_t* player, SDL_Renderer* renderer ) {
     if ( player == NULL || renderer == NULL ) return;
 
     render_hotbar( player, renderer );
+}
+
+void player_print_inventory( player_t* player ) {
+    printf("player's inventory :\n");
+    for ( int i = 0; i < PLAYER_INVENTORY_WIDTH; i++ ) {
+        item_print( player->inventory[i] ); printf(" ");
+    }
+    puts("");
 }

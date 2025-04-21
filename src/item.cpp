@@ -23,10 +23,12 @@ item_t* item_init( sprite_t* sprite, vector2_t position, char* name, bool is_sta
 
     return item;
 }
-void item_destroy( item_t* item ) {
-    if ( item == ITEM_EMPTY_SLOT ) return;
-    entity_destroy( item->entity );
+SDL_Texture* item_destroy( item_t* item, bool destroy_texture ) {
+    if ( item == ITEM_EMPTY_SLOT ) return NULL;
+    SDL_Texture* texture = entity_destroy( item->entity, destroy_texture );
     free( item );
+
+    return texture;
 }
 
 item_list_t item_list_new( void ) {
@@ -43,13 +45,15 @@ item_list_t item_list_add( item_list_t item_list, item_t* item ) {
         return ITEM_EMPTY_SLOT;
     }
 
+    // printf("new item added to list : "); item_print( item ); puts("");
+
     new_link->item = item;
     new_link->next = item_list;
     return new_link;
 }
 item_list_t item_list_add_new( item_list_t item_list, sprite_t* sprite, vector2_t position, char* name, bool is_stackable, int count, bool is_in_inventory ) {
     item_t* new_item = item_init( sprite, position, name, is_stackable, count, is_in_inventory );
-    if ( new_item == ITEM_EMPTY_SLOT ) {
+    if ( new_item == NULL ) {
         perror("Item creation failed during item list incrementation");
         return item_list;
     }
@@ -84,6 +88,18 @@ item_list_t item_list_remove( item_list_t item_list, item_t* item ) {
 }
 item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, item_t** item ) {
     *item = ITEM_EMPTY_SLOT;
+    for ( item_list_t p = item_list; !item_list_is_empty( p ); p = p->next ) {
+        if ( !rect_collision( &rect, &p->item->entity->world_rect ) ) continue;
+
+        *item = p->item;
+        break;
+    }
+
+    return item_list;
+}
+/*  A garder
+item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, item_t** item ) {
+    *item = ITEM_EMPTY_SLOT;
     if ( item_list_is_empty( item_list ) ) return item_list;
 
     item_list_t p = item_list;
@@ -111,13 +127,13 @@ item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, 
 
     // No collision found, return unchanged list
     return item_list;
-}
+} */
 
 item_list_t item_list_pop( item_list_t item_list ) {
     if ( item_list_is_empty( item_list ) ) return item_list;
 
     item_list_t temp = item_list->next;
-    item_destroy( item_list->item );
+    item_destroy( item_list->item, DESTROY_TEXTURE );
     free( item_list );
 
     return temp;
@@ -129,7 +145,7 @@ item_list_t item_list_destroy( item_list_t item_list ) {
 
     return item_list_new();
 }
-item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, bool print_debug ) {
+item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, bool print_debug, bool destroy_texture ) {
     item_list_t list = item_list;
     item_list_t prev = NULL;
 
@@ -142,7 +158,7 @@ item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, fl
             printf("position : "); vector2_print( list->item->entity->world_rect.position ); puts("");
         }
 
-        if ( item_update( list->item, player_pos, force, range2 ) ) {
+        if ( item_update( list->item, player_pos, force, range2, destroy_texture ) ) {
             prev = list;
             list = list->next;
             continue;
@@ -199,6 +215,14 @@ void item_remove_one( item_t* item ) {
     item->count--;
 }
 
+item_t* item_copy( item_t* src ) {
+    item_t* dest = item_init( sprite_copy( src->entity->sprite ), 
+                              entity_output_pos( src->entity ), 
+                              src->name, src->is_stackable, src->count, src->is_in_inventory );
+    
+    return dest;
+}
+
 // if same type, put the most of item2 possible inside item1
 // return the remaining count of item2 or -1 if not the same type
 int item_group( item_t* item1, item_t* item2 ) {
@@ -208,9 +232,7 @@ int item_group( item_t* item1, item_t* item2 ) {
             return 0;
         }
         else {
-            item1 = item2;
-            item2 = ITEM_EMPTY_SLOT;
-            return 0;
+            return -1; // can't group an item into an empty slot (for now)
         }
     }
     if ( !item_is_same( item1, item2 ) ) return -1;
@@ -243,14 +265,14 @@ void item_pickup( item_t* item ) {
 }
 // if the item is out of render distance, destroy the item and return false
 // else return true
-bool item_update( item_t* item, vector2_t player_pos, float force, float range2 ) {
+bool item_update( item_t* item, vector2_t player_pos, float force, float range2, bool destroy_texture ) {
     if ( item == ITEM_EMPTY_SLOT ) return true;
     if ( item->is_in_inventory ) return true;
 
     float distance2 = vector2_distance2( player_pos, entity_output_pos( item->entity ) );
 
     if ( distance2 > ITEM_RENDER_DISTANCE2 ) {
-        item_destroy( item );
+        item_destroy( item, destroy_texture );
         return false;
     }
     if ( distance2 <= range2 ) entity_attract( item->entity, player_pos, force );
@@ -283,6 +305,7 @@ void item_render_center( item_t* item, int x, int y, SDL_Renderer* renderer ) {
 }
 
 void item_print( item_t* item ) {
-    printf("name="); puts(item->name);
-    printf("count=%d", item->count); puts("");
+    if ( item == ITEM_EMPTY_SLOT ) { printf("()"); return; }
+    printf("(name=%s;", item->name );
+    printf("count=%d)", item->count);
 }

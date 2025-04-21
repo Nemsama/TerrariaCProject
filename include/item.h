@@ -29,7 +29,7 @@ extern item_list_t loaded_items;
 
 // need a pre-initiated sprite
 item_t* item_init( sprite_t* sprite, vector2_t position, char* name, bool is_stackable, int count, bool is_in_inventory );
-void item_destroy( item_t* item );
+SDL_Texture* item_destroy( item_t* item, bool destroy_texture );
 
 item_list_t item_list_new( void );
 bool        item_list_is_empty( item_list_t item_list );
@@ -37,7 +37,7 @@ item_list_t item_list_destroy( item_list_t item_list );
 item_list_t item_list_add( item_list_t item_list, item_t* item );
 item_list_t item_list_add_new( item_list_t item_list, sprite_t* sprite, vector2_t position, char* name, bool is_stackable, int count, bool is_in_inventory );
 item_list_t item_list_remove( item_list_t item_list, item_t* item );
-item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, bool print_debug );
+item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, bool print_debug, bool destroy_texture );
 void item_list_renderall( item_list_t item_list, camera_t* camera, SDL_Renderer* renderer );
 
 item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, item_t** item );
@@ -49,6 +49,8 @@ int  item_get_count( item_t* item );
 
 void item_add_one( item_t* item );
 void item_remove_one( item_t* item );
+
+item_t* item_copy( item_t* src );
 
 // if same type, put the most of item2 possible inside item1
 // return the remaining count of item2 or -1 if not the same type
@@ -62,7 +64,7 @@ void item_pickup( item_t* item );
 // if outside an inventory, apply gravity to the item
 // if the item is out of render distance, destroy the item and return false
 // else return true
-bool item_update( item_t* item, vector2_t player_pos, float force, float range2 );
+bool item_update( item_t* item, vector2_t player_pos, float force, float range2, bool destroy_texture );
 
 // only used for on world items : scale the sprite to match camera's zoom
 void item_render_scaled( item_t* item, camera_t* camera, SDL_Renderer* renderer );
