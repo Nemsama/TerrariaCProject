@@ -26,6 +26,8 @@ player_t* player_init( sprite_t* sprite, vector2_t position, float acceleration,
     for ( int i = 0; i < PLAYER_INVENTORY_HEIGHT * PLAYER_INVENTORY_WIDTH; i++ ) {
         player->inventory[i] = ITEM_EMPTY_SLOT;
     }
+    player->hand_index = 0;
+    player->hand_item = player->inventory[player->hand_index];
 
     return player;
 }
@@ -100,13 +102,24 @@ void gravity_scum( player_t* player, const Uint8* keystate ) {
     
     entity_add_force( player->entity, vector2_new( player_movement_x, player_movement_y + GRAVITY ) );
 }
+
+void item_selection( player_t* player, const Uint8* keystate ) {
+    // SDL scancodes for 1 to 0 (1,2,...9,0) are 30 to 39
+    for ( SDL_Scancode scancode = SDL_SCANCODE_0; scancode >= SDL_SCANCODE_1; scancode = (SDL_Scancode)(scancode-1) ) {
+        if ( keystate[scancode] ) {
+            player->hand_index = scancode - SDL_SCANCODE_1;
+            player->hand_item = player->inventory[player->hand_index];
+        }
+    }
+}
     
 void player_handle_controls( player_t* player, const Uint8* keystate ) {
     if ( !player ) return;
 
     gravity_scum( player, keystate );
-
     // god_flight( player, keystate );
+
+    item_selection( player, keystate );
 }
 
 bool player_loot_item( player_t* player, item_t* item ) {
@@ -182,13 +195,26 @@ void dig_block( world_t* world, int x, int y ) {
 
     loaded_items = item_list_add_new( loaded_items, sprite, vector2_new( (float)x + BLOCK_ITEM_SCALE/2.0f, (float)y + BLOCK_ITEM_SCALE/2.0f ), name, true, 1, false );
 }
+void place_block( player_t* player, world_t* world, int block_x, int block_y ) {
+    if ( world_output_block( world, block_x, block_y ) == AIR ) {
+        // TODO : condition on item type (if not a block can't place it, maybe put this condition inside player_left_click)
+        world_set_block( world, block_x, block_y, block_get_type( player->hand_item->name ) );
+        item_remove_one( player->hand_item );
+        if ( item_get_count( player->hand_item ) <= 0 ) {
+            item_destroy( player->hand_item, KEEP_TEXTURE );
+            player->inventory[player->hand_index] = ITEM_EMPTY_SLOT;
+            player->hand_item = player->inventory[player->hand_index];
+        }
+    }
+}
 void player_left_click( player_t* player, camera_t* camera, vector2_t world_pos, world_t* world ) {
     if ( !player || !camera || !world ) return;
     
     int block_x = (int)vector2_get_x( world_pos );
     int block_y = (int)vector2_get_y( world_pos );
 
-    dig_block( world, block_x, block_y );
+    if ( player->hand_item == ITEM_EMPTY_SLOT ) dig_block( world, block_x, block_y );
+    else                                      place_block( player, world, block_x, block_y );
 }
 
 void player_render( player_t* player, camera_t* camera, SDL_Renderer* renderer ) {
@@ -203,11 +229,22 @@ void render_inventory_slot( int x, int y, SDL_Renderer* renderer ) {
 
     SDL_RenderCopy( renderer, inventory_slot_texture, &slot_src_rect, &slot_dest_rect );
 }
+void render_main_hand_slot( int x, int y, SDL_Renderer* renderer ) {
+    if ( renderer == NULL || inventory_slot_texture == NULL ) return;
+
+    slot_dest_rect.x = x - slot_dest_rect.w/2;
+    slot_dest_rect.y = y - slot_dest_rect.h/2;
+
+    SDL_SetTextureColorMod( inventory_slot_texture, 100, 100, 255 );
+    SDL_RenderCopy( renderer, inventory_slot_texture, &slot_src_rect, &slot_dest_rect );
+    SDL_SetTextureColorMod( inventory_slot_texture, 255, 255, 255 );
+}
 void render_hotbar( player_t* player, SDL_Renderer* renderer ) {
     int y = slot_dest_rect.h/2;
     for ( int i = 0; i < PLAYER_INVENTORY_WIDTH; i++ ) {
         int x = slot_dest_rect.w/2 + i*slot_dest_rect.w;
-        render_inventory_slot( x, y, renderer );
+        if ( player->hand_index == i ) render_main_hand_slot( x, y, renderer );
+        else                           render_inventory_slot( x, y, renderer );
 
         if ( item_is_same( ITEM_EMPTY_SLOT, player->inventory[i] ) ) continue;
 

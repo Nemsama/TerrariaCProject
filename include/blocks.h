@@ -36,6 +36,7 @@ bool init_blocks_types( SDL_Renderer* renderer );
 void destroy_blocks_types( void );
 
 void block_get_name( block_type_t block_type, char* name );
+block_type_t block_get_type( char* name );
 
 void block_render( block_t* block, camera_t* camera, SDL_Renderer* renderer );
 

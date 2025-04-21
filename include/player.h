@@ -21,6 +21,8 @@ typedef struct {
     float jump_speed; // blocks per frame
 
     // inventory handling
+    int hand_index;
+    item_t* hand_item;
     item_t* inventory[PLAYER_INVENTORY_SIZE];
 } player_t;
 

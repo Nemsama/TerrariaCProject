@@ -1,6 +1,7 @@
 #include <blocks.h>
 
 block_t* blocks_types[BLOCK_TYPES_COUNT] = { NULL, NULL, NULL, NULL, NULL };
+const char* block_texture_names[BLOCK_TYPES_COUNT] = BLOCK_TEXTURES_NAMES;
 
 bool init_blocks_types( SDL_Renderer* renderer ) {
     char texture_path[256];
@@ -37,9 +38,16 @@ void destroy_blocks_types( void ) {
 
 
 void block_get_name( block_type_t block_type, char* name ) {
-    const char* block_texture_names[BLOCK_TYPES_COUNT] = BLOCK_TEXTURES_NAMES;
+    // const char* block_texture_names[BLOCK_TYPES_COUNT] = BLOCK_TEXTURES_NAMES;
 
     strncpy( name, block_texture_names[block_type], 128 );
+}
+
+block_type_t block_get_type( char* name ) {
+    for ( int i = 0; i < BLOCK_TYPES_COUNT; i++ ) {
+        if ( 0 == strcmp( name, block_texture_names[i] ) ) return (block_type_t)i;
+    }
+    return INVALID;
 }
 
 
