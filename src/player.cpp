@@ -105,7 +105,7 @@ void player_handle_controls( player_t* player, const Uint8* keystate ) {
 
 bool player_loot_item( player_t* player, item_t* item ) {
     if ( player == NULL || item == NULL ) return false;
-    // printf("looted item "); puts(item->name);
+    printf("looted item "); item_print( item ); puts("");
 
     int remaining = -1;
     int i = 0;
@@ -141,12 +141,19 @@ void player_update( player_t* player, const Uint8* keystate, world_t* world ) {
     entity_apply_collisions( player->entity, world );
 
     item_t* looted_item;
+    // item_list_print( loaded_items ); puts(" (before checking collisions)");
     loaded_items = item_list_grab_first_colliding( loaded_items, player->entity->world_rect, &looted_item );
+    // item_list_print( loaded_items ); puts(" (after checking collision)");
     if ( looted_item != ITEM_EMPTY_SLOT ) {
+        // item_list_print( loaded_items ); puts(" (before looting)");
         if ( player_loot_item( player, looted_item ) ) { // item completely looted
+            printf("item "); item_print( looted_item ); printf(" fully looted, destroying it"); puts("");
+            // item_list_print( loaded_items ); puts(" (before removing item)");
             loaded_items = item_list_remove( loaded_items, looted_item );
+            // item_list_print( loaded_items ); puts(" (before destroying item)");
             item_destroy( looted_item, KEEP_TEXTURE ); // TODO : modify the code to allow texture destruction for non-block items
         }
+        // item_list_print( loaded_items ); puts(" (after looting)");
     }
 
 }
@@ -159,7 +166,7 @@ void dig_block( world_t* world, int x, int y ) {
 
     block_t* block = blocks_types[block_type];
     sprite_t* sprite = sprite_copy( block->sprite );
-    sprite_set_scale( sprite, BLOCK_TEXTURE_SIZE/2, BLOCK_TEXTURE_SIZE/2 );
+    sprite_set_scale( sprite, 0.5f );
     char name[128];
     block_get_name( block_type, name );
 

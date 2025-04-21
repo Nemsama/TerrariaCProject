@@ -14,10 +14,10 @@ entity_t* entity_init( sprite_t* sprite, vector2_t position ) {
     
     entity->sprite = sprite;
     rect_set_pos( &entity->world_rect, position );
-    vector2_t shape = { 
+    vector2_t shape = vector2_new(
         (float)entity->sprite->dest_rect.w / PIXELS_PER_BLOCK, 
         (float)entity->sprite->dest_rect.h / PIXELS_PER_BLOCK 
-    };
+    );
     rect_set_shape( &entity->world_rect, shape );
 
     entity->is_grounded = false;
@@ -72,12 +72,12 @@ int  entity_get_sprite_y     ( entity_t* entity, camera_t* camera ) {
 }
 // void entity_get_sprite_pos   ( entity_t* entity, camera_t* camera, int* x, int* y );
 int  entity_get_sprite_width ( entity_t* entity, camera_t* camera ) {
-    camera_scale_sprite( camera, &entity->sprite->dest_rect, &entity->sprite->src_rect );
+    camera_scale_sprite( camera, &entity->sprite->dest_rect, entity->sprite->scale, &entity->sprite->src_rect );
 
     return entity->sprite->dest_rect.w;
 }
 int  entity_get_sprite_height( entity_t* entity, camera_t* camera ) {
-    camera_scale_sprite( camera, &entity->sprite->dest_rect, &entity->sprite->src_rect );
+    camera_scale_sprite( camera, &entity->sprite->dest_rect, entity->sprite->scale, &entity->sprite->src_rect );
 
     return entity->sprite->dest_rect.h;
 }
@@ -91,7 +91,7 @@ void entity_render( entity_t* entity, camera_t* camera, SDL_Renderer* renderer )
     sprite_set_pos( entity->sprite, entity_screen_x, entity_screen_y );
 
     // set the right scale for the sprite
-    camera_scale_sprite( camera, &entity->sprite->dest_rect, &entity->sprite->src_rect );
+    camera_scale_sprite( camera, &entity->sprite->dest_rect, entity->sprite->scale, &entity->sprite->src_rect );
 
     sprite_render( entity->sprite, renderer );
 }
@@ -106,7 +106,7 @@ void entity_render_center( entity_t* entity, camera_t* camera, SDL_Renderer* ren
     sprite_set_pos( entity->sprite, entity_screen_x, entity_screen_y );
 
     // set the right scale for the sprite
-    camera_scale_sprite( camera, &entity->sprite->dest_rect, &entity->sprite->src_rect );
+    camera_scale_sprite( camera, &entity->sprite->dest_rect, entity->sprite->scale, &entity->sprite->src_rect );
 
     sprite_render( entity->sprite, renderer );
 }

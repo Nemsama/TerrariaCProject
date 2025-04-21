@@ -113,11 +113,11 @@ void camera_reduce_scale( camera_t* camera, float delta_scale ) {
     camera_set_scale( camera, camera->scale - delta_scale );
 } */
 
-void camera_scale_sprite( camera_t* camera, SDL_Rect* sprite_dest_rect, SDL_Rect* sprite_src_rect ) {
+void camera_scale_sprite( camera_t* camera, SDL_Rect* sprite_dest_rect, float sprite_scale, SDL_Rect* sprite_src_rect ) {
     if ( camera == NULL || sprite_dest_rect == NULL || sprite_src_rect == NULL ) return;
 
-    sprite_dest_rect->w = (int)roundf( sprite_src_rect->w / camera->scale );
-    sprite_dest_rect->h = (int)roundf( sprite_src_rect->h / camera->scale );
+    sprite_dest_rect->w = (int)roundf( sprite_src_rect->w * sprite_scale / camera->scale );
+    sprite_dest_rect->h = (int)roundf( sprite_src_rect->h * sprite_scale / camera->scale );
 }
 
 void camera_center_sprite( camera_t* camera, SDL_Rect* sprite_dest_rect ) {

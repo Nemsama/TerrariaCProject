@@ -67,7 +67,7 @@ item_list_t item_list_remove( item_list_t item_list, item_t* item ) {
     item_list_t prev = NULL;
 
     while ( !item_list_is_empty( p ) ) {
-        if ( item_list->item == item ) {
+        if ( p->item == item ) {
             if ( prev == NULL ) { // if first link
                 // Removing the head
                 item_list_t new_head = p->next;
@@ -145,7 +145,7 @@ item_list_t item_list_destroy( item_list_t item_list ) {
 
     return item_list_new();
 }
-item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, bool print_debug, bool destroy_texture ) {
+item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, bool print_debug, bool destroy_texture, world_t* world ) {
     item_list_t list = item_list;
     item_list_t prev = NULL;
 
@@ -158,7 +158,7 @@ item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, fl
             printf("position : "); vector2_print( list->item->entity->world_rect.position ); puts("");
         }
 
-        if ( item_update( list->item, player_pos, force, range2, destroy_texture ) ) {
+        if ( item_update( list->item, player_pos, force, range2, destroy_texture, world ) ) {
             prev = list;
             list = list->next;
             continue;
@@ -183,6 +183,14 @@ void item_list_renderall( item_list_t item_list, camera_t* camera, SDL_Renderer*
         item_render_scaled( item_list->item, camera, renderer );
         item_list = item_list->next;
     }
+}
+void item_list_print( item_list_t item_list ) {
+    printf("[ ");
+    while ( !item_list_is_empty( item_list ) ) {
+        item_print( item_list->item ); printf(" ; ");
+        item_list = item_list->next;
+    }
+    printf("]");
 }
 
 // compare the type (name) of items, not count
@@ -265,7 +273,7 @@ void item_pickup( item_t* item ) {
 }
 // if the item is out of render distance, destroy the item and return false
 // else return true
-bool item_update( item_t* item, vector2_t player_pos, float force, float range2, bool destroy_texture ) {
+bool item_update( item_t* item, vector2_t player_pos, float force, float range2, bool destroy_texture, world_t* world ) {
     if ( item == ITEM_EMPTY_SLOT ) return true;
     if ( item->is_in_inventory ) return true;
 
@@ -280,6 +288,8 @@ bool item_update( item_t* item, vector2_t player_pos, float force, float range2,
     entity_add_force( item->entity, vector2_new( 0.0f, GRAVITY ) );
 
     entity_apply_force( item->entity );
+
+    entity_apply_collisions( item->entity, world );
 
     return true;
 }

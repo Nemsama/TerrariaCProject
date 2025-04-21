@@ -32,17 +32,15 @@ game_t* game_init( void ) {
         return NULL;
     }
 
-    game->background = sprite_init( "assets/background/Blue_sky.png", game->renderer, 0, 0, 2048, 1024 );
+    game->background = sprite_init( "assets/background/Blue_sky.png", game->renderer, 0, 0, 1.0f, 2048, 1024 );
     
     if ( game->background == NULL ) {
         perror("Failed to create background sprite");
         game_quit( game );
         return NULL;
     }
-    sprite_set_scale( game->background, WINDOW_WIDTH, WINDOW_HEIGHT );
-    sprite_set_pos( game->background, 0, 0 );
 
-    sprite_t* player_sprite = sprite_init( "assets/sprites/Guide_idle_clean.png", game->renderer, 0, 0, 48, 82 );
+    sprite_t* player_sprite = sprite_init( "assets/sprites/Guide_idle_clean.png", game->renderer, 0, 0, 1.0f, 48, 82 );
     game->player = player_init( player_sprite, 
                                 vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y),
                                 PLAYER_ACCELERATION,
@@ -189,8 +187,9 @@ void game_update( game_t* game ) {
 
     camera_update( game->camera, entity_output_pos( game->player->entity ), keystate );
 
-    loaded_items = item_list_updateall( loaded_items, entity_output_pos( game->player->entity ), 0.04f, 5*5, game->print_debug, KEEP_TEXTURE );
+    loaded_items = item_list_updateall( loaded_items, entity_output_pos( game->player->entity ), 0.04f, 5*5, game->print_debug, KEEP_TEXTURE, game->world );
 
+    // item_list_print( loaded_items ); puts("");
     if ( game->print_debug ) game->print_debug = false;
 }
 

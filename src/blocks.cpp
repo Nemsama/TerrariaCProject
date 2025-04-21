@@ -16,7 +16,7 @@ bool init_blocks_types( SDL_Renderer* renderer ) {
         blocks_types[i]->type = (block_type_t)i;
 
         snprintf( texture_path, sizeof(texture_path), "%s%s%s", BLOCK_TEXTURES_PATH, block_texture_names[i], BLOCK_TEXTURES_EXT );
-        blocks_types[i]->sprite = sprite_init( texture_path, renderer, 0, 0, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE );
+        blocks_types[i]->sprite = sprite_init( texture_path, renderer, 0, 0, 1.0f, BLOCK_TEXTURE_SIZE, BLOCK_TEXTURE_SIZE );
         if ( blocks_types[i]->sprite == NULL ) {
             perror("Failed to create blocks_types sprite");
             destroy_blocks_types();
@@ -52,7 +52,7 @@ void block_render( block_t* block, camera_t* camera, SDL_Renderer* renderer ) {
 
     // printf("block %d %d %d %d\n", block->x, block->y, block->sprite->dest_rect.x, block->sprite->dest_rect.y);
 
-    camera_scale_sprite( camera, &block->sprite->dest_rect, &block->sprite->src_rect );
+    camera_scale_sprite( camera, &block->sprite->dest_rect, block->sprite->scale, &block->sprite->src_rect );
 
     sprite_render( block->sprite, renderer );
 }

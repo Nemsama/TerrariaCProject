@@ -40,7 +40,7 @@ void camera_get_shape( camera_t* camera, vector2_t* shape );
 void camera_get_scale( camera_t* camera, float *scale );
 void camera_add_scale( camera_t* camera, float scale );
 
-void camera_scale_sprite( camera_t* camera, SDL_Rect* sprite_dest_rect, SDL_Rect* sprite_src_rect );
+void camera_scale_sprite( camera_t* camera, SDL_Rect* sprite_dest_rect, float sprite_scale, SDL_Rect* sprite_src_rect );
 void camera_center_sprite( camera_t* camera, SDL_Rect* sprite_dest_rect );
 
 void camera_update( camera_t* camera, vector2_t target_position, const Uint8* keystate );

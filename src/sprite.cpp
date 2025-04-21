@@ -1,7 +1,7 @@
 #include <sprite.h>
 
 
-sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src_x, int src_y, int texture_width, int texture_height ) {
+sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src_x, int src_y, float scale, int texture_width, int texture_height ) {
     // Allocate memory for the sprite structure
     sprite_t* sprite = (sprite_t*)calloc( 1, sizeof(*sprite) );
     if ( sprite == NULL ) {
@@ -33,6 +33,8 @@ sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src
     sprite->src_rect.w = texture_width;
     sprite->src_rect.h = texture_height;
 
+    sprite->scale = scale;
+
     // Set the destination rectangle to the specified position and size
     sprite->dest_rect.x = 0;
     sprite->dest_rect.y = 0;
@@ -41,7 +43,7 @@ sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src
 
     return sprite;
 }
-sprite_t* sprite_init_texture( SDL_Texture* texture, int src_x, int src_y, int width, int height ) {
+sprite_t* sprite_init_texture( SDL_Texture* texture, int src_x, int src_y, float scale, int width, int height ) {
     if ( texture == NULL ) {
         perror("Texture is NULL");
         return NULL;
@@ -61,6 +63,8 @@ sprite_t* sprite_init_texture( SDL_Texture* texture, int src_x, int src_y, int w
     sprite->src_rect.y = src_y;
     sprite->src_rect.w = width;
     sprite->src_rect.h = height;
+
+    sprite->scale = scale;
 
     // Set the destination rectangle to the specified position and size
     sprite->dest_rect.x = 0;
@@ -113,7 +117,7 @@ SDL_Texture* copy_texture( SDL_Texture* source, SDL_Renderer* renderer ) {
 sprite_t* sprite_copy( const sprite_t* sprite/* , SDL_Renderer* renderer */ ) {
     SDL_Texture* new_texture = sprite->texture;
     // the texture is the same but will be printed on the screen at different position depending on the used sprite
-    return sprite_init_texture( new_texture, sprite->src_rect.x, sprite->src_rect.y, sprite->src_rect.h, sprite->src_rect.h );
+    return sprite_init_texture( new_texture, sprite->src_rect.x, sprite->src_rect.y, sprite->scale, sprite->src_rect.h, sprite->src_rect.h );
 }
 
 SDL_Texture* sprite_destroy( sprite_t* sprite, bool destroy_texture ) {
@@ -144,19 +148,20 @@ void sprite_get_pos( sprite_t* sprite, int* x, int* y ) {
     if ( y ) *y = sprite->dest_rect.y;
 }
 
-void sprite_set_scale( sprite_t* sprite, int width, int height ) {
+void sprite_set_scale( sprite_t* sprite, float scale ) {
     if ( sprite == NULL ) return;
 
-    sprite->dest_rect.w = width;
-    sprite->dest_rect.h = height;
+    sprite->scale = scale;
+
+    sprite->dest_rect.w = sprite->scale * sprite->src_rect.w;
+    sprite->dest_rect.h = sprite->scale * sprite->src_rect.h;
 }
-void sprite_scale(  sprite_t* sprite, float scale_x, float scale_y ) {
+void sprite_scale( sprite_t* sprite, float scale_mult ) {
     if ( sprite == NULL ) return;
 
-    sprite->dest_rect.w *= scale_x;
-    sprite->dest_rect.h *= scale_y;
+    sprite->scale *= scale_mult;
 }
-void sprite_get_scale( sprite_t* sprite, int* width, int* height ) {
+void sprite_get_shape( sprite_t* sprite, int* width, int* height ) {
     if ( sprite == NULL ) return;
 
     if ( width ) *width = sprite->dest_rect.w;
@@ -215,7 +220,7 @@ void sprite_render_background( sprite_t* background, camera_t* camera, SDL_Rende
     
     // set the right scale for the background
     SDL_Rect window_rect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
-    camera_scale_sprite( camera, &background->dest_rect, &window_rect );
+    camera_scale_sprite( camera, &background->dest_rect, background->scale, &window_rect );
 
     // center the background
     camera_center_sprite( camera, &background->dest_rect );
