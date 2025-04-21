@@ -48,6 +48,12 @@ void player_destroy( player_t* player ) {
     entity_destroy( player->entity, DESTROY_TEXTURE );
     free( player );
 }
+void player_destroy_inventory( player_t* player ) {
+    if ( player == NULL ) return;
+    for ( int i = 0; i < PLAYER_INVENTORY_WIDTH; i++ ) {
+        item_destroy( player->inventory[i], DESTROY_TEXTURE );
+    }
+}
 void destroy_inventory_slot_texture( void ) {
     if ( inventory_slot_texture ) SDL_DestroyTexture( inventory_slot_texture );
 }
@@ -130,7 +136,7 @@ void player_check_for_loot( player_t* player ) {
 
     item_t* looted_item;
     // item_list_print( loaded_items ); puts(" (before checking collisions)");
-    loaded_items = item_list_grab_first_colliding( loaded_items, player->entity->world_rect, &looted_item );
+    loaded_items = item_list_grab_first_colliding( loaded_items, player->entity->world_rect, &looted_item, NO_EXCEPTION );
     // item_list_print( loaded_items ); puts(" (after checking collision)");
     if ( looted_item != ITEM_EMPTY_SLOT ) {
         // item_list_print( loaded_items ); puts(" (before looting)");
@@ -166,7 +172,7 @@ void dig_block( world_t* world, int x, int y ) {
     block_type_t block_type = world_output_block( world, x, y );
     if ( block_type == AIR ) return;
     world_set_block( world, x, y, AIR );
-    // printf("digging block %d at %d %d\n", (int)block_type, x, y );
+    printf("digging block %d at %d %d", (int)block_type, x, y ); puts("");
 
     block_t* block = blocks_types[block_type];
     sprite_t* sprite = sprite_copy( block->sprite );

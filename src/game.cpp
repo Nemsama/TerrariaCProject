@@ -88,7 +88,8 @@ void game_quit( game_t* game ) {
     destroy_blocks_types();
     if ( NULL != game->camera ) camera_destroy( game->camera );
 
-    if ( NULL != game->player ) player_destroy( game->player );
+    player_destroy_inventory( game->player );
+    player_destroy( game->player );
     destroy_inventory_slot_texture();
 
     if ( NULL != game->background ) sprite_destroy( game->background, DESTROY_TEXTURE );
@@ -185,11 +186,11 @@ void game_update( game_t* game ) {
     const Uint8* keystate = SDL_GetKeyboardState( NULL );
 
     player_update( game->player, keystate, game->world );
-
+    
     camera_update( game->camera, entity_output_pos( game->player->entity ), keystate );
 
-    loaded_items = item_list_updateall( loaded_items, entity_output_pos( game->player->entity ), 0.04f, 5*5, game->print_debug, KEEP_TEXTURE, game->world );
-
+    loaded_items = item_list_updateall( loaded_items, entity_output_pos( game->player->entity ), 0.04f, 5*5, game->world );
+    
     // item_list_print( loaded_items ); puts("");
     if ( game->print_debug ) game->print_debug = false;
 }

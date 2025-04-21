@@ -26,6 +26,7 @@ typedef struct {
 
 player_t* player_init( sprite_t* sprite, vector2_t position, float acceleration, float max_speed /* in blocks per seconds */, float jump_speed );
 void player_destroy( player_t* player );
+void player_destroy_inventory( player_t* player );
 
 void    init_inventory_slot_texture( SDL_Renderer* renderer );
 void destroy_inventory_slot_texture( void );

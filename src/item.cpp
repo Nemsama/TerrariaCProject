@@ -4,7 +4,7 @@ item_list_t loaded_items = item_list_new();
 
 // need a pre-initiated sprite
 item_t* item_init( sprite_t* sprite, vector2_t position, char* name, bool is_stackable, int count, bool is_in_inventory ) {
-    static int id_counter = -1;
+    static int id_counter = 0;
 
     item_t* item = (item_t*)calloc( 1, sizeof(*item) );
     if ( item == ITEM_EMPTY_SLOT ) {
@@ -89,10 +89,20 @@ item_list_t item_list_remove( item_list_t item_list, item_t* item ) {
 
     return item_list;
 }
-item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, item_t** item ) {
+// remove the item from the list AND destroys it
+item_list_t item_list_destroy_item( item_list_t item_list, item_t* item, bool destroy_texture ) {
+    item_list = item_list_remove( item_list, item );
+
+    item_destroy( item, destroy_texture );
+
+    return item_list;
+}
+
+item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, item_t** item, item_t* exception ) {
     *item = ITEM_EMPTY_SLOT;
     for ( item_list_t p = item_list; !item_list_is_empty( p ); p = p->next ) {
         if ( !rect_collision( &rect, &p->item->entity->world_rect ) ) continue;
+        if ( p->item == exception ) continue;
 
         *item = p->item;
         break;
@@ -148,20 +158,16 @@ item_list_t item_list_destroy( item_list_t item_list ) {
 
     return item_list_new();
 }
-item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, bool print_debug, bool destroy_texture, world_t* world ) {
+item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, world_t* world ) {
     item_list_t list = item_list;
     item_list_t prev = NULL;
 
-    if ( print_debug ) printf("updating loaded items...\n");
+    // printf("updating loaded items...\n");
     
     while ( !item_list_is_empty( list ) ) {
-        if ( print_debug ) {
-            printf("updating item "); puts(list->item->name);
-            printf("count = %d ; inventory? : %d\n", list->item->count, list->item->is_in_inventory );
-            printf("position : "); vector2_print( list->item->entity->world_rect.position ); puts("");
-        }
+        // printf("updating item "); item_print( list->item ); puts("");
 
-        if ( item_update( list->item, player_pos, force, range2, destroy_texture, world ) ) {
+        if ( item_update( list->item, &item_list, player_pos, force, range2, world ) ) {
             prev = list;
             list = list->next;
             continue;
@@ -178,7 +184,7 @@ item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, fl
             list = prev->next;
         }
     }
-
+    
     return item_list;
 }
 void item_list_renderall( item_list_t item_list, camera_t* camera, SDL_Renderer* renderer ) {
@@ -276,14 +282,14 @@ void item_pickup( item_t* item ) {
 }
 // if the item is out of render distance, destroy the item and return false
 // else return true
-bool item_update( item_t* item, vector2_t player_pos, float force, float range2, bool destroy_texture, world_t* world ) {
+bool item_update( item_t* item, item_list_t* pitem_list, vector2_t player_pos, float force, float range2, world_t* world ) {
     if ( item == ITEM_EMPTY_SLOT ) return true;
     if ( item->is_in_inventory ) return true;
 
     float distance2 = vector2_distance2( player_pos, entity_output_pos( item->entity ) );
 
     if ( distance2 > ITEM_RENDER_DISTANCE2 ) {
-        item_destroy( item, destroy_texture );
+        item_destroy( item, KEEP_TEXTURE );
         puts("item out of range destroyed");
         return false;
     }
@@ -294,6 +300,20 @@ bool item_update( item_t* item, vector2_t player_pos, float force, float range2,
     entity_apply_force( item->entity );
 
     entity_apply_collisions( item->entity, world );
+
+    // check if grouping is possible
+    item_list_t item_list = *pitem_list;
+    item_t* colliding;
+    int remaining;
+    if ( item->count == ITEM_MAX_COUNT ) return true;
+    item_list = item_list_grab_first_colliding( item_list, item->entity->world_rect, &colliding, item );
+    if ( colliding != ITEM_EMPTY_SLOT ) {
+        // printf("merging items "); item_print( item ); printf(" and "); item_print( colliding ); puts("");
+        remaining = item_group( item, colliding );
+        // printf("merged  items "); item_print( item ); printf(" and "); item_print( colliding ); puts("");
+        if ( remaining == 0 ) item_list = item_list_destroy_item( item_list, colliding, KEEP_TEXTURE );
+    }
+    *pitem_list = item_list;
 
     return true;
 }
