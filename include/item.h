@@ -10,7 +10,8 @@
 #define ITEM_EMPTY_SLOT NULL
 #define NO_EXCEPTION NULL
 
-#define ITEM_RENDER_DISTANCE2 20*20
+#define ITEM_RENDER_DISTANCE2 20.0f*20.0f
+#define ITEM_GROUPING_RANGE2 1.0f*1.0f
 
 #define BLOCK_ITEM_SCALE 0.5f
 
@@ -48,6 +49,7 @@ void item_list_renderall( item_list_t item_list, camera_t* camera, SDL_Renderer*
 void item_list_print( item_list_t item_list );
 
 item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, item_t** item, item_t* exception );
+bool item_list_grab_first_verifying( const item_list_t item_list, bool condition(item_t*, entity_t*), entity_t* argument, item_t** item, item_t* exception );
 
 // compare the type (name) of items, not count
 bool item_is_same  ( item_t* item1, item_t* item2 );
@@ -68,6 +70,10 @@ int item_group( item_t* item1, item_t* item2 );
 void item_throw( item_t* item, vector2_t speed );
 // set the item as inside an inventory
 void item_pickup( item_t* item );
+
+bool item_is_in_grouping_range( item_t* item, entity_t* entity );
+bool item_is_in_pickup_range( item_t* item, entity_t* entity );
+
 // if outside an inventory, apply gravity to the item
 // if the item is out of render distance, destroy the item and return false
 // else return true

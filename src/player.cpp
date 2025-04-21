@@ -136,7 +136,7 @@ void player_check_for_loot( player_t* player ) {
 
     item_t* looted_item;
     // item_list_print( loaded_items ); puts(" (before checking collisions)");
-    loaded_items = item_list_grab_first_colliding( loaded_items, player->entity->world_rect, &looted_item, NO_EXCEPTION );
+    item_list_grab_first_verifying( loaded_items, item_is_in_pickup_range, player->entity, &looted_item, NO_EXCEPTION );
     // item_list_print( loaded_items ); puts(" (after checking collision)");
     if ( looted_item != ITEM_EMPTY_SLOT ) {
         // item_list_print( loaded_items ); puts(" (before looting)");

@@ -110,37 +110,18 @@ item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, 
 
     return item_list;
 }
-/*  A garder
-item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, item_t** item ) {
+bool item_list_grab_first_verifying( const item_list_t item_list, bool condition(item_t*, entity_t*), entity_t* argument, item_t** item, item_t* exception ) {
     *item = ITEM_EMPTY_SLOT;
-    if ( item_list_is_empty( item_list ) ) return item_list;
+    for ( item_list_t p = item_list; !item_list_is_empty( p ); p = p->next ) {
+        if ( !condition( p->item, argument ) ) continue;
+        if ( p->item == exception ) continue;
 
-    item_list_t p = item_list;
-    item_list_t prev = NULL;
-
-    while ( !item_list_is_empty( p ) ) {
-        if ( rect_collision( &rect, &p->item->entity->world_rect ) ) {
-            *item = p->item;
-
-            if ( prev == NULL ) { // if first link
-                // Removing the head
-                item_list_t new_head = p->next;
-                free( p );
-                return new_head;
-            } else {
-                // Removing a middle or last element
-                prev->next = p->next;
-                free( p );
-                return item_list;
-            }
-        }
-        prev = p;
-        p = p->next;
+        *item = p->item;
+        break;
     }
 
-    // No collision found, return unchanged list
     return item_list;
-} */
+}
 
 item_list_t item_list_pop( item_list_t item_list ) {
     if ( item_list_is_empty( item_list ) ) return item_list;
@@ -280,6 +261,13 @@ void item_throw( item_t* item, vector2_t speed ) {
 void item_pickup( item_t* item ) {
     if ( item ) item->is_in_inventory = true;
 }
+bool item_is_in_grouping_range( item_t* item, entity_t* entity ) {
+    return ( vector2_distance2( entity_output_pos( item->entity ), entity_output_pos( entity ) ) <= ITEM_GROUPING_RANGE2 );
+}
+bool item_is_in_pickup_range( item_t* item, entity_t* entity ) {
+    return rect_collision( &item->entity->world_rect, &entity->world_rect );
+}
+
 // if the item is out of render distance, destroy the item and return false
 // else return true
 bool item_update( item_t* item, item_list_t* pitem_list, vector2_t player_pos, float force, float range2, world_t* world ) {
@@ -306,7 +294,7 @@ bool item_update( item_t* item, item_list_t* pitem_list, vector2_t player_pos, f
     item_t* colliding;
     int remaining;
     if ( item->count == ITEM_MAX_COUNT ) return true;
-    item_list = item_list_grab_first_colliding( item_list, item->entity->world_rect, &colliding, item );
+    item_list_grab_first_verifying( item_list, item_is_in_grouping_range, item->entity, &colliding, item );
     if ( colliding != ITEM_EMPTY_SLOT ) {
         // printf("merging items "); item_print( item ); printf(" and "); item_print( colliding ); puts("");
         remaining = item_group( item, colliding );
