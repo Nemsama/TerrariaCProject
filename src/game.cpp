@@ -32,7 +32,7 @@ game_t* game_init( void ) {
         return NULL;
     }
 
-    game->background = sprite_init( "assets/background/Blue_sky.png", game->renderer, 0, 0, 1.0f, 2048, 1024 );
+    game->background = sprite_init( "assets/background/ciel.png", game->renderer, 0, 0, 1.0f, 847, 494 );
     
     if ( game->background == NULL ) {
         perror("Failed to create background sprite");
@@ -62,7 +62,7 @@ game_t* game_init( void ) {
 
     world_flags_t world_flags;
     set_default_world_flags( &world_flags );
-    world_flags.special_seed = FLAT;
+    // world_flags.special_seed = FLAT;  // FLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT
     game->world = create_world( &world_flags );
     if ( game->world == NULL ) {
         perror("Failed to create world");
