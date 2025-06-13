@@ -23,7 +23,9 @@ sprite_t* sprite_init_texture( SDL_Texture* texture, int src_x, int src_y, float
 SDL_Texture* sprite_destroy( sprite_t* sprite, bool destroy_texture );
 
 void sprite_set_pos( sprite_t* sprite, int x, int y );
+void sprite_set_center( sprite_t* sprite, int x, int y );
 void sprite_get_pos( sprite_t* sprite, int* x, int* y );
+void sprite_get_center( sprite_t* sprite, int* x, int* y );
 
 void sprite_set_scale( sprite_t* sprite, float scale );
 void sprite_scale( sprite_t* sprite, float scale_mult );

@@ -5,6 +5,7 @@
 #include <utils.h>
 #include <rect.h>
 
+#include <background.h>
 #include <camera.h>
 #include <sprite.h>
 #include <player.h>
@@ -15,7 +16,7 @@ typedef struct game {
     SDL_Renderer* renderer;
     SDL_Event event;
 
-    sprite_t* background;
+    // sprite_t* background;
 
     bool running;
     int frame_count;

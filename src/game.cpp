@@ -32,13 +32,14 @@ game_t* game_init( void ) {
         return NULL;
     }
 
-    game->background = sprite_init( "assets/background/ciel.png", game->renderer, 0, 0, 1.0f, 847, 494 );
+    // game->background = sprite_init( "assets/background/ciel.png", game->renderer, 0, 0, 1.0f, 847, 494 );
     
-    if ( game->background == NULL ) {
-        perror("Failed to create background sprite");
+    if ( !background_init( game->renderer ) ) {
+        perror("Failed to initialize background");
         game_quit( game );
         return NULL;
     }
+    reset_clouds( SUNNY ); // reset the clouds to a sunny weather
 
     sprite_t* player_sprite = sprite_init( "assets/sprites/Guide_idle_clean.png", game->renderer, 0, 0, 1.0f, 48, 82 );
     game->player = player_init( player_sprite, 
@@ -62,7 +63,7 @@ game_t* game_init( void ) {
 
     world_flags_t world_flags;
     set_default_world_flags( &world_flags );
-    // world_flags.special_seed = FLAT;  // FLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT
+    world_flags.special_seed = FLAT;  // FLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT
     game->world = create_world( &world_flags );
     if ( game->world == NULL ) {
         perror("Failed to create world");
@@ -92,7 +93,8 @@ void game_quit( game_t* game ) {
     player_destroy( game->player );
     destroy_inventory_slot_texture();
 
-    if ( NULL != game->background ) sprite_destroy( game->background, DESTROY_TEXTURE );
+    // if ( NULL != game->background ) sprite_destroy( game->background, DESTROY_TEXTURE );
+    background_destroy();
 
     if ( NULL != game->renderer ) SDL_DestroyRenderer( game->renderer );
     if ( NULL != game->window ) SDL_DestroyWindow( game->window );
@@ -201,7 +203,8 @@ void game_render( game_t* game ) {
     SDL_RenderClear( game->renderer );
 
     // Render the background
-    sprite_render_background( game->background, game->camera, game->renderer );
+    // sprite_render_background( game->background, game->camera, game->renderer );
+    background_render( FOREST, SUNNY, 1200, game->renderer );
 
     // Render blocks
     world_render( game->world, game->camera, game->renderer );

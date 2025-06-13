@@ -47,6 +47,7 @@ void init_inventory_slot_texture( SDL_Renderer* renderer ) {
 }
 
 void player_destroy( player_t* player ) {
+    if ( player == NULL ) return;
     entity_destroy( player->entity, DESTROY_TEXTURE );
     free( player );
 }
