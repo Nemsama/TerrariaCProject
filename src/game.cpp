@@ -41,7 +41,7 @@ game_t* game_init( void ) {
     }
     reset_clouds( SUNNY ); // reset the clouds to a sunny weather
 
-    sprite_t* player_sprite = sprite_init( "assets/sprites/Guide_idle_clean.png", game->renderer, 0, 0, 1.0f, 48, 82 );
+    sprite_t* player_sprite = sprite_init( "assets/sprites/stickman_animated.png", game->renderer, 0, 0, 1.0f, 48, 82 );
     game->player = player_init( player_sprite, 
                                 vector2_new(WORLD_SPAWN_X, WORLD_SPAWN_Y),
                                 PLAYER_ACCELERATION,

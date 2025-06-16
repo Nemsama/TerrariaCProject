@@ -35,7 +35,7 @@ int sprite_get_width ( sprite_t* sprite );
 int sprite_get_height( sprite_t* sprite );
 
 // sprite_render only print the sprite's texture on the renderer according to its source and dest rects
-void sprite_render( sprite_t* sprite, SDL_Renderer* renderer );
+void sprite_render( sprite_t* sprite, SDL_Renderer* renderer, bool flipped );
 void sprite_render_background( sprite_t* background, camera_t* camera, SDL_Renderer* renderer );
 
 void sprite_set_texture( sprite_t* sprite, SDL_Texture* texture );

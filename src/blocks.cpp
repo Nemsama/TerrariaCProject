@@ -62,5 +62,5 @@ void block_render( block_t* block, camera_t* camera, SDL_Renderer* renderer ) {
 
     camera_scale_sprite( camera, &block->sprite->dest_rect, block->sprite->scale, &block->sprite->src_rect );
 
-    sprite_render( block->sprite, renderer );
+    sprite_render( block->sprite, renderer, false );
 }

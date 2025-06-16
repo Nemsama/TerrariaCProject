@@ -3,6 +3,7 @@
 
 #include <common.h>
 #include <sprite.h>
+#include <animation.h>
 #include <camera.h>
 #include <rect.h>
 #include <utils.h>
@@ -45,6 +46,8 @@ void entity_apply_collisions( entity_t* entity, world_t* world );
 
 // attract the entity towards the position with an amplitude 'force'
 void entity_attract( entity_t* entity, vector2_t position, float force );
+
+void entity_animate_movement( entity_t* entity );
 
 void entity_render       ( entity_t* entity, camera_t* camera, SDL_Renderer* renderer );
 void entity_render_center( entity_t* entity, camera_t* camera, SDL_Renderer* renderer );

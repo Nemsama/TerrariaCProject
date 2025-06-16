@@ -1,7 +1,7 @@
 #include <sprite.h>
 
 
-sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src_x, int src_y, float scale, int texture_width, int texture_height ) {
+sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src_x, int src_y, float scale, int width, int height ) {
     // Allocate memory for the sprite structure
     sprite_t* sprite = (sprite_t*)calloc( 1, sizeof(*sprite) );
     if ( sprite == NULL ) {
@@ -30,16 +30,16 @@ sprite_t* sprite_init( const char* texture_path, SDL_Renderer* renderer, int src
     // Set the source rectangle to the entire texture
     sprite->src_rect.x = src_x;
     sprite->src_rect.y = src_y;
-    sprite->src_rect.w = texture_width;
-    sprite->src_rect.h = texture_height;
+    sprite->src_rect.w = width;
+    sprite->src_rect.h = height;
 
     sprite->scale = scale;
 
     // Set the destination rectangle to the specified position and size
     sprite->dest_rect.x = 0;
     sprite->dest_rect.y = 0;
-    sprite->dest_rect.w = texture_width;
-    sprite->dest_rect.h = texture_height;
+    sprite->dest_rect.w = width;
+    sprite->dest_rect.h = height;
 
     return sprite;
 }
@@ -117,7 +117,7 @@ SDL_Texture* copy_texture( SDL_Texture* source, SDL_Renderer* renderer ) {
 sprite_t* sprite_copy( const sprite_t* sprite/* , SDL_Renderer* renderer */ ) {
     SDL_Texture* new_texture = sprite->texture;
     // the texture is the same but will be printed on the screen at different position depending on the used sprite
-    return sprite_init_texture( new_texture, sprite->src_rect.x, sprite->src_rect.y, sprite->scale, sprite->src_rect.h, sprite->src_rect.h );
+    return sprite_init_texture( new_texture, sprite->src_rect.x, sprite->src_rect.y, sprite->scale, sprite->src_rect.w, sprite->src_rect.h );
 }
 
 SDL_Texture* sprite_destroy( sprite_t* sprite, bool destroy_texture ) {
@@ -221,10 +221,11 @@ void sprite_set_texture_path( sprite_t* sprite, const char* texture_path, SDL_Re
     sprite_set_texture( sprite, new_texture );
 }
 
-void sprite_render( sprite_t* sprite, SDL_Renderer* renderer ) {
+void sprite_render( sprite_t* sprite, SDL_Renderer* renderer, bool flipped ) {
     if ( sprite == NULL || renderer == NULL ) return;
 
-    SDL_RenderCopy( renderer, sprite->texture, &sprite->src_rect, &sprite->dest_rect );
+    if ( !flipped ) SDL_RenderCopy( renderer, sprite->texture, &sprite->src_rect, &sprite->dest_rect );
+    else SDL_RenderCopyEx( renderer, sprite->texture, &sprite->src_rect, &sprite->dest_rect, 0.0f, NULL, SDL_FLIP_HORIZONTAL );
 }
 
 void sprite_render_background( sprite_t* background, camera_t* camera, SDL_Renderer* renderer ) {

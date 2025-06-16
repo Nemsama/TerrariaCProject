@@ -170,6 +170,8 @@ void player_update( player_t* player, const Uint8* keystate, world_t* world ) {
 
     player_handle_controls( player, keystate );
 
+    entity_animate_movement( player->entity );
+
     entity_apply_force( player->entity );
 
     // printf("player mov_force: %f\n", running_force( vector2_get_x( player->entity->velocity ), player->mov_acceleration, player->max_speed ) );

@@ -317,7 +317,7 @@ void item_render       ( item_t* item, int x, int y, SDL_Renderer* renderer ) {
 
     item->entity->sprite->dest_rect.x = x;
     item->entity->sprite->dest_rect.y = y;
-    sprite_render( item->entity->sprite, renderer );
+    sprite_render( item->entity->sprite, renderer, false );
 }
 // print the sprite on the renderer centered on the given position
 void item_render_center( item_t* item, int x, int y, SDL_Renderer* renderer ) {

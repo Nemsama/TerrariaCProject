@@ -93,7 +93,9 @@ void entity_render( entity_t* entity, camera_t* camera, SDL_Renderer* renderer )
     // set the right scale for the sprite
     camera_scale_sprite( camera, &entity->sprite->dest_rect, entity->sprite->scale, &entity->sprite->src_rect );
 
-    sprite_render( entity->sprite, renderer );
+    bool flipped = false;
+    if ( entity->velocity.x < 0 ) flipped = true;
+    sprite_render( entity->sprite, renderer, flipped );
 }
 void entity_render_center( entity_t* entity, camera_t* camera, SDL_Renderer* renderer ) {
     if ( !entity || !camera || !renderer ) return;
@@ -108,7 +110,9 @@ void entity_render_center( entity_t* entity, camera_t* camera, SDL_Renderer* ren
     // set the right scale for the sprite
     camera_scale_sprite( camera, &entity->sprite->dest_rect, entity->sprite->scale, &entity->sprite->src_rect );
 
-    sprite_render( entity->sprite, renderer );
+    bool flipped = false;
+    if ( entity->velocity.x < 0 ) flipped = true;
+    sprite_render( entity->sprite, renderer, flipped );
 }
 
 void entity_add_force( entity_t* entity, vector2_t force ) {
@@ -336,5 +340,18 @@ void entity_apply_collisions( entity_t* entity, world_t* world ) {
         entity_push( entity, colliding_right, colliding_bottom, vector2_project_y( displacement ) );
     }
 
+}
+
+
+
+void entity_animate_movement( entity_t* entity ) {
+    if ( entity->velocity.x == 0.0f ) {
+        set_animation( entity->sprite, 0 );
+        animate( entity->sprite, 1 );
+    }
+    else {
+        set_animation( entity->sprite, 1 );
+        animate( entity->sprite, 4 );
+    }
 }
 

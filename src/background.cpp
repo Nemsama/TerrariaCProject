@@ -2,6 +2,7 @@
 
 // assets placeholders
 sprite_t*  forest_trees = NULL;
+sprite_t*  forest_background = NULL;
 sprite_t*  desert_dunes = NULL;
 sprite_t* toundra_trees = NULL;
 sprite_t*  jungle_trees = NULL;
@@ -83,6 +84,7 @@ void background_destroy( void ) {
 
     // free all the background assets
     sprite_destroy( forest_trees, DESTROY_TEXTURE );
+    sprite_destroy( forest_background, DESTROY_TEXTURE );
     sprite_destroy( desert_dunes, DESTROY_TEXTURE );
     sprite_destroy( toundra_trees, DESTROY_TEXTURE );
     sprite_destroy( jungle_trees, DESTROY_TEXTURE );
@@ -104,8 +106,11 @@ void background_destroy( void ) {
 // returns true if all the assets are loaded properly
 // return false if an error occured during background initialisation
 bool background_init( SDL_Renderer* renderer ) {
+    srand( (unsigned int)time(NULL) );
+
     // Load the background assets
-     forest_trees = sprite_init( "assets/background/forest_trees.png",  renderer, 0, 0, 1.0f, 1280, 720 );
+    forest_trees = sprite_init( "assets/background/forest_trees.png",  renderer, 0, 0, 1.0f, 1280, 720 );
+    forest_background = sprite_init( "assets/background/forest_background.png", renderer, 0, 0, 1.0f, 1280, 720 );
     //  desert_dunes = sprite_init( "assets/background/desert_dunes.png",  renderer, 0, 0, 1.0f, 1280, 720 );
     // toundra_trees = sprite_init( "assets/background/toundra_trees.png", renderer, 0, 0, 1.0f, 1280, 720 );
     //  jungle_trees = sprite_init( "assets/background/jungle_trees.png",  renderer, 0, 0, 1.0f, 1280, 720 );
@@ -121,7 +126,7 @@ bool background_init( SDL_Renderer* renderer ) {
     char  cloud_path[256];
     for ( int i = 0; i < 5; i++ ) {
         sprintf( cloud_path, "%s_%d.png", sunny_cloud_path, i );
-        sunny_cloud[i] = sprite_init( cloud_path, renderer, 0, 0, 1.0f, 512, 512 );
+        sunny_cloud[i] = sprite_init( cloud_path, renderer, 0, 0, 1.0f, 512, 300 );
         // sprintf( cloud_path, "%s_%d.png", medium_cloud_path, i );
         // medium_cloud[i] = sprite_init( cloud_path, renderer, 0, 0, 1.0f, 512, 512 );
         // sprintf( cloud_path, "%s_%d.png", rainy_cloud_path, i );
@@ -139,7 +144,7 @@ bool background_init( SDL_Renderer* renderer ) {
     // fog         = sprite_init( "assets/background/fog.png",         renderer, 0, 0, 1.0f,   512 ,   512 );
 
     // Check if all assets are loaded successfully
-    if ( !forest_trees /*|| !desert_dunes || !toundra_trees || !jungle_trees || !beach_beach*/ ||
+    if ( !forest_trees || !forest_background /*|| !desert_dunes || !toundra_trees || !jungle_trees || !beach_beach*/ ||
          !sun /*|| !rain || !snow*/ /*|| !fog*/ ) {
         perror("Failed to load background assets");
         background_destroy();
@@ -165,7 +170,8 @@ void set_bg_color( bg_biome_t biome, int time_of_day, SDL_Renderer* renderer ) {
     // OR Set the background color based on the biome
     switch ( biome ) {
         case FOREST:
-            SDL_SetRenderDrawColor( renderer,  47, 194, 237, 255 ); // light blue for forest
+            // SDL_SetRenderDrawColor( renderer,  47, 194, 237, 255 ); // light blue for forest
+            sprite_render( forest_background, renderer, false );
             break;
         case DESERT:
             SDL_SetRenderDrawColor( renderer, 255, 248, 213, 255 ); // Orange for desert
@@ -187,19 +193,19 @@ void render_bg_biome( bg_biome_t biome, SDL_Renderer* renderer ) {
     // Render the background based on the biome
     switch ( biome ) {
         case FOREST:
-            sprite_render( forest_trees, renderer );
+            sprite_render( forest_trees, renderer, false );
             break;
         case DESERT:
-            sprite_render( desert_dunes, renderer );
+            sprite_render( desert_dunes, renderer, false );
             break;
         case TOUNDRA:
-            sprite_render( toundra_trees, renderer );
+            sprite_render( toundra_trees, renderer, false );
             break;
         case JUNGLE:
-            sprite_render( jungle_trees, renderer );
+            sprite_render( jungle_trees, renderer, false );
             break;
         case BEACH:
-            sprite_render( beach_beach, renderer );
+            sprite_render( beach_beach, renderer, false );
             break;
     }
 }
@@ -235,11 +241,11 @@ void render_sun( int time_of_day, SDL_Renderer* renderer ) {
     // Render the sun or moon based on the time of day
     if ( 1900 <= time_of_day || time_of_day < 700 ) {
         sprite_set_center( moon, x, y );
-        sprite_render( moon, renderer );
+        sprite_render( moon, renderer, false );
     }
     else {
         sprite_set_center( sun, x, y );
-        sprite_render( sun, renderer );
+        sprite_render( sun, renderer, false );
     }
 }
 
@@ -251,6 +257,7 @@ void spawn_cloud( int x, int y, int sprite_index ) {
     // Render a cloud at the given position
     sprite_t* cloud = sprite_copy( all_clouds[sprite_index] );
     sprite_set_center( cloud, x, y );
+
     cloud_list = cloud_list_add( cloud_list, cloud );
 }
 void spawn_sunny_cloud( void ) {
@@ -285,7 +292,7 @@ void render_clouds( weather_t weather, SDL_Renderer* renderer ) {
     int cloud_count = 0;
     while ( current != NULL ) {
         // Render the cloud
-        sprite_render( current->cloud, renderer );
+        sprite_render( current->cloud, renderer, false );
 
         move_cloud( current );
         // Remove the cloud if it goes off screen
@@ -311,14 +318,14 @@ void render_clouds( weather_t weather, SDL_Renderer* renderer ) {
     // Spawn new clouds based on the weather
     switch ( weather ) {
         case SUNNY:
-            if ( cloud_count < 3 ) spawn_sunny_cloud();
+            if ( cloud_count < 5 ) spawn_sunny_cloud();
             break;
         case CLOUDY:
-            if ( cloud_count < 5 ) spawn_medium_cloud();
+            if ( cloud_count < 8 ) spawn_medium_cloud();
             break;
         case SNOWY:
         case RAINY:
-            if ( cloud_count < 8 ) spawn_rainy_cloud();
+            if ( cloud_count < 12 ) spawn_rainy_cloud();
             break;
         default:
             break;
@@ -333,14 +340,14 @@ void reset_clouds( weather_t weather ) {
     // Spawn initial clouds based on the weather
     switch ( weather ) {
         case SUNNY:
-            for ( int i = 0; i < 3; i++ ) {
+            for ( int i = 0; i < 5; i++ ) {
                 x = rand() % WINDOW_WIDTH; // spawn randomly on all the screen
                 y = rand() % (WINDOW_HEIGHT / 3); // spawn in the upper third of the screen
                 spawn_cloud( x, y, rand() % 5 ); // random sunny cloud type
             }
             break;
         case CLOUDY:
-            for ( int i = 0; i < 5; i++ ) {
+            for ( int i = 0; i < 8; i++ ) {
                 x = rand() % WINDOW_WIDTH; // spawn randomly on all the screen
                 y = rand() % (WINDOW_HEIGHT / 3); // spawn in the upper third of the screen
                 spawn_cloud( x, y, 5 + rand() % 5 ); // random medium cloud type
@@ -348,7 +355,7 @@ void reset_clouds( weather_t weather ) {
             break;
         case SNOWY:
         case RAINY:
-            for ( int i = 0; i < 8; i++ ) {
+            for ( int i = 0; i < 12; i++ ) {
                 x = rand() % WINDOW_WIDTH; // spawn randomly on all the screen
                 y = rand() % (WINDOW_HEIGHT / 3); // spawn in the upper third of the screen
                 spawn_cloud( x, y, 10 + rand() % 5 ); // random rainy cloud type
