@@ -15,8 +15,17 @@
 
 #define BLOCK_ITEM_SCALE 0.5f
 
+typedef enum item_type {
+    BLOCK,
+    UNUSABLE,
+    TOOL,
+    WEAPON,
+    CONSUMABLE,
+} item_type_t;
+
 typedef struct item {
     int id;
+    item_type_t type;
     char name[ITEM_MAX_NAME_LEN];
     bool is_stackable;
     int count;
@@ -33,20 +42,20 @@ typedef struct item_link {
 extern item_list_t loaded_items;
 
 // need a pre-initiated sprite
-item_t* item_init( sprite_t* sprite, vector2_t position, char* name, bool is_stackable, int count, bool is_in_inventory );
+item_t*      item_init   ( sprite_t* sprite, vector2_t position, const char* name, item_type_t type, bool is_stackable, int count, bool is_in_inventory );
 SDL_Texture* item_destroy( item_t* item, bool destroy_texture );
 
-item_list_t item_list_new( void );
-bool        item_list_is_empty( item_list_t item_list );
-item_list_t item_list_destroy( item_list_t item_list );
-item_list_t item_list_add( item_list_t item_list, item_t* item );
-item_list_t item_list_add_new( item_list_t item_list, sprite_t* sprite, vector2_t position, char* name, bool is_stackable, int count, bool is_in_inventory );
-item_list_t item_list_remove( item_list_t item_list, item_t* item );
+item_list_t item_list_new         ( void );
+bool        item_list_is_empty    ( item_list_t item_list );
+item_list_t item_list_destroy     ( item_list_t item_list );
+item_list_t item_list_add         ( item_list_t item_list, item_t* item );
+item_list_t item_list_add_new     ( item_list_t item_list, sprite_t* sprite, vector2_t position, char* name, item_type_t type, bool is_stackable, int count, bool is_in_inventory );
+item_list_t item_list_remove      ( item_list_t item_list, item_t* item );
 // remove the item from the list AND destroys it
 item_list_t item_list_destroy_item( item_list_t item_list, item_t* item, bool destroy_texture );
-item_list_t item_list_updateall( item_list_t item_list, vector2_t player_pos, float force, float range2, world_t* world );
-void item_list_renderall( item_list_t item_list, camera_t* camera, SDL_Renderer* renderer );
-void item_list_print( item_list_t item_list );
+item_list_t item_list_updateall   ( item_list_t item_list, vector2_t player_pos, float force, float range2, world_t* world );
+void        item_list_renderall   ( item_list_t item_list, camera_t* camera, SDL_Renderer* renderer );
+void        item_list_print       ( item_list_t item_list );
 
 item_list_t item_list_grab_first_colliding( item_list_t item_list, rect_t rect, item_t** item, item_t* exception );
 bool item_list_grab_first_verifying( const item_list_t item_list, bool condition(item_t*, entity_t*), entity_t* argument, item_t** item, item_t* exception );
@@ -56,7 +65,7 @@ bool item_is_same  ( item_t* item1, item_t* item2 );
 bool item_is_empty ( item_t* item );
 int  item_get_count( item_t* item );
 
-void item_add_one( item_t* item );
+void item_add_one   ( item_t* item );
 void item_remove_one( item_t* item );
 
 item_t* item_copy( item_t* src );

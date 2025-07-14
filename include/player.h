@@ -33,6 +33,8 @@ void player_destroy_inventory( player_t* player );
 void    init_inventory_slot_texture( SDL_Renderer* renderer );
 void destroy_inventory_slot_texture( void );
 
+void player_setup_inventory( player_t* player, SDL_Renderer* renderer );
+
 void player_left_click( player_t* player, camera_t* camera, vector2_t world_pos, world_t* world );
 
 void player_update( player_t* player, const Uint8* keystate, world_t* world );

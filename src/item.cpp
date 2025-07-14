@@ -3,7 +3,7 @@
 item_list_t loaded_items = item_list_new();
 
 // need a pre-initiated sprite
-item_t* item_init( sprite_t* sprite, vector2_t position, char* name, bool is_stackable, int count, bool is_in_inventory ) {
+item_t* item_init( sprite_t* sprite, vector2_t position, const char* name, item_type_t type, bool is_stackable, int count, bool is_in_inventory ) {
     static int id_counter = 0;
 
     item_t* item = (item_t*)calloc( 1, sizeof(*item) );
@@ -19,6 +19,7 @@ item_t* item_init( sprite_t* sprite, vector2_t position, char* name, bool is_sta
     }
 
     strncpy( item->name, name, ITEM_MAX_NAME_LEN );
+    item->type = type;
     item->is_stackable = is_stackable;
     item->count = count;
     item->is_in_inventory = is_in_inventory;
@@ -54,8 +55,8 @@ item_list_t item_list_add( item_list_t item_list, item_t* item ) {
     new_link->next = item_list;
     return new_link;
 }
-item_list_t item_list_add_new( item_list_t item_list, sprite_t* sprite, vector2_t position, char* name, bool is_stackable, int count, bool is_in_inventory ) {
-    item_t* new_item = item_init( sprite, position, name, is_stackable, count, is_in_inventory );
+item_list_t item_list_add_new( item_list_t item_list, sprite_t* sprite, vector2_t position, char* name, item_type_t type, bool is_stackable, int count, bool is_in_inventory ) {
+    item_t* new_item = item_init( sprite, position, name, type, is_stackable, count, is_in_inventory );
     if ( new_item == NULL ) {
         perror("Item creation failed during item list incrementation");
         return item_list;
@@ -216,7 +217,7 @@ void item_remove_one( item_t* item ) {
 item_t* item_copy( item_t* src ) {
     item_t* dest = item_init( sprite_copy( src->entity->sprite ), 
                               entity_output_pos( src->entity ), 
-                              src->name, src->is_stackable, src->count, src->is_in_inventory );
+                              src->name, src->type, src->is_stackable, src->count, src->is_in_inventory );
     
     return dest;
 }

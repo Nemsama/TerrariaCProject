@@ -350,8 +350,8 @@ void entity_animate_movement( entity_t* entity ) {
         animate( entity->sprite, 1 );
     }
     else {
-        set_animation( entity->sprite, 1 );
-        animate( entity->sprite, 4 );
+        set_animation( entity->sprite, 0 );
+        animate( entity->sprite, 1 );
     }
 }
 

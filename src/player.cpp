@@ -61,6 +61,9 @@ void destroy_inventory_slot_texture( void ) {
     if ( inventory_slot_texture ) SDL_DestroyTexture( inventory_slot_texture );
 }
 
+
+
+
 void god_flight( player_t* player, const Uint8* keystate ) {
     float player_movement_x = 0.0f;
     float player_movement_y = 0.0f;
@@ -122,6 +125,20 @@ void player_handle_controls( player_t* player, const Uint8* keystate ) {
 
     item_selection( player, keystate );
 }
+
+
+
+
+void player_setup_inventory( player_t* player, SDL_Renderer* renderer ) {
+    item_t* short_sword = item_init( sprite_init( "assets/items/copper_short_sword.png", renderer, 0, 0, 1.0f, 32, 32 ), vector2_new( 0.0f, 0.0f ), "Copper Short Sword", WEAPON, false, 1, true );
+    item_t* pickaxe = item_init( sprite_init( "assets/items/copper_pickaxe.png", renderer, 0, 0, 1.0f, 32, 32 ), vector2_new( 0.0f, 0.0f ), "Copper Pickaxe", TOOL, false, 1, true );
+    
+    player->inventory[0] = short_sword;
+    player->inventory[1] = pickaxe;
+}
+
+
+
 
 bool player_loot_item( player_t* player, item_t* item ) {
     if ( player == NULL || item == NULL ) return false;
@@ -196,7 +213,7 @@ void dig_block( world_t* world, int x, int y ) {
     char name[128];
     block_get_name( block_type, name );
 
-    loaded_items = item_list_add_new( loaded_items, sprite, vector2_new( (float)x + BLOCK_ITEM_SCALE/2.0f, (float)y + BLOCK_ITEM_SCALE/2.0f ), name, true, 1, false );
+    loaded_items = item_list_add_new( loaded_items, sprite, vector2_new( (float)x + BLOCK_ITEM_SCALE/2.0f, (float)y + BLOCK_ITEM_SCALE/2.0f ), name, BLOCK, true, 1, false );
 }
 void place_block( player_t* player, world_t* world, int block_x, int block_y ) {
     if ( world_output_block( world, block_x, block_y ) == AIR ) {
@@ -216,8 +233,26 @@ void player_left_click( player_t* player, camera_t* camera, vector2_t world_pos,
     int block_x = (int)vector2_get_x( world_pos );
     int block_y = (int)vector2_get_y( world_pos );
 
-    if ( player->hand_item == ITEM_EMPTY_SLOT ) dig_block( world, block_x, block_y );
-    else                                      place_block( player, world, block_x, block_y );
+    if ( player->hand_item == ITEM_EMPTY_SLOT ) return;
+    switch ( player->hand_item->type ) {
+        case BLOCK:
+            // printf("placing block %s at %d %d\n", player->hand_item->name, block_x, block_y);
+            place_block( player, world, block_x, block_y );
+            break;
+        case TOOL:
+            // printf("digging block at %d %d\n", block_x, block_y);
+            dig_block( world, block_x, block_y );
+            break;
+        case UNUSABLE:
+            puts("can't use this item");
+            break;
+        case WEAPON:
+        case CONSUMABLE:
+            puts("usage not implemented");
+            break;
+        default:
+            puts("unknown item type in player_left_click");
+    }
 }
 
 void player_render( player_t* player, camera_t* camera, SDL_Renderer* renderer ) {
