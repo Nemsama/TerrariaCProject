@@ -272,7 +272,7 @@ world_t* create_world( world_flags_t* world_flags ) {
     clock_t t0 = clock();
     clock_t t1;
     clock_t t2;
-
+ 
     t1 = clock();
     printf("Drawing surface line...\n");
     world_generate_base( world, world_flags );
