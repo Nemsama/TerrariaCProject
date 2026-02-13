@@ -121,8 +121,8 @@ bool background_init( SDL_Renderer* renderer ) {
     // moon        = sprite_init( "assets/background/moon.png",        renderer, 0, 0, 1.0f,   64,   64 );
 
     const char* sunny_cloud_path = "assets/background/sunny_cloud";
-    const char* medium_cloud_path = "assets/background/medium_cloud";
-    const char* rainy_cloud_path = "assets/background/rainy_cloud";
+    // const char* medium_cloud_path = "assets/background/medium_cloud";
+    // const char* rainy_cloud_path = "assets/background/rainy_cloud";
     char  cloud_path[256];
     for ( int i = 0; i < 5; i++ ) {
         sprintf( cloud_path, "%s_%d.png", sunny_cloud_path, i );
