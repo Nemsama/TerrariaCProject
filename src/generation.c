@@ -475,7 +475,7 @@ float get_box_filter_value( Uint8 ** world_mask, int x, int y ) {
 }
 float gaussian_weight( int x, int y, int i, int j ) {
     if ( i == x && j == y ) return 4.0f;
-    else if ( fabs( i-x ) + fabs( j-y ) == 1 ) return 2.0f;
+    else if ( fabs( (double)(i-x) ) + fabs( (double)(j-y) ) == 1 ) return 2.0f;
     else return 1.0f;
 }
 float get_gaussian_filter_value( Uint8 ** world_mask, int x, int y ) {

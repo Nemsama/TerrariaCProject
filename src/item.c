@@ -1,6 +1,6 @@
 #include <item.h>
 
-item_list_t loaded_items = item_list_new();
+item_list_t loaded_items = ITEM_EMPTY_SLOT;
 
 // need a pre-initiated sprite
 item_t* item_init( sprite_t* sprite, vector2_t position, const char* name, item_type_t type, bool is_stackable, int count, bool is_in_inventory ) {
@@ -121,7 +121,7 @@ bool item_list_grab_first_verifying( const item_list_t item_list, bool condition
         break;
     }
 
-    return item_list;
+    return item_list == ITEM_EMPTY_SLOT ? false : true;
 }
 
 item_list_t item_list_pop( item_list_t item_list ) {

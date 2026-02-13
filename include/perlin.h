@@ -1,6 +1,8 @@
 #ifndef PERLIN_H
 #define PERLIN_H
 
+#include <stdbool.h>
+
 #define PERLIN_WIDTH  100
 #define PERLIN_HEIGHT 100
 

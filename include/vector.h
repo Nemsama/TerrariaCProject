@@ -1,7 +1,9 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#define _GNU_SOURCE
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 

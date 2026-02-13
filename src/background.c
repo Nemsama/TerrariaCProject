@@ -279,7 +279,7 @@ void spawn_rainy_cloud( void ) {
     spawn_cloud( x, y, 10 + rand() % 5 ); // random rainy cloud type
 }
 
-void move_cloud( cloud_link* cloud ) {
+void move_cloud( cloud_link_t* cloud ) {
     float movement = cloud->mov_buffer + cloud->speed;
     cloud->mov_buffer = movement - (int)movement;
     cloud->cloud->dest_rect.x += (int)movement;

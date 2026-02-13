@@ -1,6 +1,6 @@
 # Compiler and flags
-CXX = g++
-CXXFLAGS = -Wall -Wextra -Iinclude -std=c++17
+CXX = gcc
+CXXFLAGS = -Wall -Wextra -Iinclude -std=c11
 
 # Directories
 SRC_DIR = src
@@ -8,8 +8,8 @@ INC_DIR = include
 BUILD_DIR = build
 
 # Files
-SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
-OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
+SOURCES = $(wildcard $(SRC_DIR)/*.c)
+OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SOURCES))
 TARGET = $(BUILD_DIR)/terraria
 
 # Libraries (e.g., SDL2)
@@ -24,7 +24,7 @@ $(TARGET): $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $@ $(LIBS)
 
 # Compile source files into object files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
