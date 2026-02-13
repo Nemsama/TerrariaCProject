@@ -63,7 +63,7 @@ game_t* game_init( void ) {
 
     world_flags_t world_flags;
     set_default_world_flags( &world_flags );
-    world_flags.special_seed = FLAT;  // FLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT
+    // world_flags.special_seed = FLAT;  // FLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT
     game->world = create_world( &world_flags );
     if ( game->world == NULL ) {
         perror("Failed to create world");
