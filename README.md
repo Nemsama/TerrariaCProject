@@ -67,22 +67,10 @@ make all
 
 ## License
 
-Perlin noise license (see [the dedicated github page](https://github.com/Nicknakin/PerlinNoiseGeneratorCPP) for more details):
+The entire code is under an MIT License, see [LICENSE](https://github.com/Nemsama/TerrariaCProject/blob/master/LICENSE) for more info.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+The Perlin noise part has also an MIT license (see [the dedicated github page](https://github.com/Nicknakin/PerlinNoiseGeneratorCPP) for more details)
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+## Collaborators
 
-
-For the rest of the code, feel free to use this project as you wish, I don't care about the licensing. (But if you want to give me credit that would be nice :smile: )
-
-## Authors
-
-- [Nils Desbois-Renaudin] - Everything except perlin noise and some assets
-- [Joshua Faure] - some assets such as some clouds
+- [Joshua Faure] - painted some assets such as some of the clouds
