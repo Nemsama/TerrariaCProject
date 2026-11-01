@@ -1,6 +1,6 @@
 # Terraria Clone
 
-[![Watch the video](https://raw.githubusercontent.com/Nemsama/TerrariaCProject/blob/master/thumbnail.png)](https://raw.githubusercontent.com/ama/TerrariaCProject/blob/master/Build_showcase.mp4)
+[![Watch the video](https://raw.githubusercontent.com/Nemsama/TerrariaCProject/master/Thumbnail.png)](https://raw.githubusercontent.com/Nemsama/TerrariaCProject/master/Build_showcase.mp4)
 
 ## Description
 
