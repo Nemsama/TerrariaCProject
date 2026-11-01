@@ -1,23 +1,26 @@
 # Terraria Clone
 
+[![Watch the video](https://raw.githubusercontent.com/Nemsama/TerrariaCProject/blob/master/thumbnail.png)](https://raw.githubusercontent.com/ama/TerrariaCProject/blob/master/Build_showcase.mp4)
+
 ## Description
 
-This is a small spare time project about trying to recreate Terraria.
-The project is not finished (far from it actually) but currently paused for an undetermined period.
+This is a spare time project about trying to recreate Terraria.
+The project is not finished (far from it actually) but I don't intend to continue it for now.
 
 I had a lot of fun trying to recreate Terraria using Python (with Pygame) and wanted to retry that experience using C and maybe some C++.
 I ended up only using C with SDL library so I switched the files extentions lately.
 
-I will maybe return to this project later, maybe making it really C++ or restarting from scratch to make it in Java (lets try them all :smirk:).
+I will maybe return to this project later, maybe making it in C++ or restarting from scratch to make it in Java.
 
-I have recently decided to upload this project to have anyone take a look at it and maybe get some feedback.
+I have decided to upload this project to have anyone take a look at it and maybe get some feedback.
 
 ## Features
 
 - Player movement using WASD keys[^1] (note that W is used for jump instead of the space bar in the real Terraria), camera movement using space bar to center it to the player and the keyboard arrows to move it freely; you can also zoom in and out by scrolling[^2].
-- Rudimentary physics (character and items) that I am not sure what to think about (good but not quite good enough).
+- Rudimentary physics (character and items) that I think are good but not quite good enough.
 - Procedural terrain generation using perlin noise that I took from [this github page](https://github.com/Nicknakin/PerlinNoiseGeneratorCPP) which I found on [this reddit post](https://www.reddit.com/r/cpp/comments/greq8t/ndimensional_perlin_noise_generator/), It surely is not optimal but I didn't want to code it myself and it works.
-- block mining (using pickaxe) and placement with an inventory that cannot be directly used by the player and a system of tools not fully implemented (but fonctional for the pickaxe).
+- block mining (using pickaxe) and placement with an rudimentary inventory system.
+- other tools and weapon are not really implemented.
 
 [^1]: I tested it with an AZERTY keyboard so the controls may be different on a different keyboard
 [^2]: May slow the game if too zoomed out but usefull to see world generation, the zoom still has display issues but since it is designed for debuging I didn't bother
